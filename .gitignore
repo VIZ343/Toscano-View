@@ -1,0 +1,14 @@
+# Entorno local
+.env
+.env.*
+!.env.example
+node_modules/
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+*.log
+*.zip
+# Archivos temporales
+*.tmp
+*.bak

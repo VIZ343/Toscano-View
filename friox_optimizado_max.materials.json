@@ -1,0 +1,1835 @@
+{
+  "version": 1,
+  "model": "FRIOX_Optimizado_Max.glb",
+  "uvMode": "box",
+  "assignments": {
+    "Corten_steel_01 · Structural Framing": {
+      "rule": "metal",
+      "texture": "ph:blue_metal_plate",
+      "source": "auto",
+      "override": null
+    },
+    "Metal_Deck · Plates": {
+      "rule": "metal",
+      "texture": "ph:blue_metal_plate",
+      "source": "auto",
+      "override": null
+    },
+    "Base_context · Walls": {
+      "rule": "aplanado",
+      "texture": "ph:white_stucco",
+      "source": "auto",
+      "override": null
+    },
+    "Base_context · Curtain Wall Mullions": {
+      "rule": "metal",
+      "texture": "ph:blue_metal_plate",
+      "source": "auto",
+      "override": null
+    },
+    "Painted_brick_01 · Walls": {
+      "rule": "aplanado",
+      "texture": "ph:white_stucco",
+      "source": "auto",
+      "override": null
+    },
+    "Metal · Generic Models": {
+      "rule": "metal",
+      "texture": "ph:blue_metal_plate",
+      "source": "auto",
+      "override": null
+    },
+    "Non_slip_flooring_02 · Generic Models": {
+      "rule": "plastico",
+      "texture": "ph:linoleum_brown",
+      "source": "auto",
+      "override": null
+    },
+    "MI_GlassRefractive01 · Curtain Panels": {
+      "rule": "vidrio",
+      "texture": null,
+      "source": "auto",
+      "override": null
+    },
+    "ALUMINIO · Generic Models": {
+      "rule": "metal",
+      "texture": "ph:blue_metal_plate",
+      "source": "auto",
+      "override": null
+    },
+    "Carpet_wool_var_03 · Generic Models": {
+      "rule": "tela",
+      "texture": "ph:fabric_pattern_07",
+      "source": "auto",
+      "override": null
+    },
+    "PLASTICO · Generic Models": {
+      "rule": "plastico",
+      "texture": "ph:linoleum_brown",
+      "source": "auto",
+      "override": null
+    },
+    "Corten_steel_01 · Furniture": {
+      "rule": "metal",
+      "texture": "ph:blue_metal_plate",
+      "source": "auto",
+      "override": null
+    },
+    "Brushed_aluminium_01 · Curtain Wall Mullions": {
+      "rule": "metal",
+      "texture": "ph:blue_metal_plate",
+      "source": "auto",
+      "override": null
+    },
+    "Corten_steel_01 · Bolts": {
+      "rule": "metal",
+      "texture": "ph:blue_metal_plate",
+      "source": "auto",
+      "override": null
+    },
+    "Brushed_Aluminum · Walls": {
+      "rule": "metal",
+      "texture": "ph:blue_metal_plate",
+      "source": "auto",
+      "override": null
+    },
+    "Steel__45-345 · Structural Framing": {
+      "rule": "metal",
+      "texture": "ph:blue_metal_plate",
+      "source": "auto",
+      "override": null
+    },
+    "Corten_steel_01 · Railings": {
+      "rule": "metal",
+      "texture": "ph:blue_metal_plate",
+      "source": "auto",
+      "override": null
+    },
+    "Metal_-_Steel_2 · Structural Framing": {
+      "rule": "metal",
+      "texture": "ph:blue_metal_plate",
+      "source": "auto",
+      "override": null
+    },
+    "Steel_ASTM_A36 · Structural Columns": {
+      "rule": "metal",
+      "texture": "ph:blue_metal_plate",
+      "source": "auto",
+      "override": null
+    },
+    "Metal__Paint_Finish__White__Matte · Structural Columns": {
+      "rule": "metal",
+      "texture": "ph:blue_metal_plate",
+      "source": "auto",
+      "override": null
+    },
+    "Corten_steel_01 · Structural Columns": {
+      "rule": "metal",
+      "texture": "ph:blue_metal_plate",
+      "source": "auto",
+      "override": null
+    },
+    "SSG_Wood_Plywood_PBR · Specialty Equipment": {
+      "rule": "madera",
+      "texture": "ph:oak_veneer_01",
+      "source": "auto",
+      "override": null
+    },
+    "SSG_WP_216_Whisper_SPA · Specialty Equipment": {
+      "rule": null,
+      "texture": null,
+      "source": "none",
+      "override": null
+    },
+    "SSG_Metal_Steel_PBR · Specialty Equipment": {
+      "rule": "metal",
+      "texture": "ph:blue_metal_plate",
+      "source": "auto",
+      "override": null
+    },
+    "Base_context_2 · Walls": {
+      "rule": "aplanado",
+      "texture": "ph:white_stucco",
+      "source": "auto",
+      "override": null
+    },
+    "Corten_steel_01 · Structural Foundations · familia concreto": {
+      "rule": "metal",
+      "texture": "ph:blue_metal_plate",
+      "source": "auto",
+      "override": null
+    },
+    "Concrete_-_Cast-in-Place_Concrete_2 · Structural Foundations": {
+      "rule": "concreto",
+      "texture": "ph:asphalt_floor",
+      "source": "auto",
+      "override": null
+    },
+    "Corten_steel_01 · Structural Connections": {
+      "rule": "metal",
+      "texture": "ph:blue_metal_plate",
+      "source": "auto",
+      "override": null
+    },
+    "Metal_Deck · Structural Connections": {
+      "rule": "metal",
+      "texture": "ph:blue_metal_plate",
+      "source": "auto",
+      "override": null
+    },
+    "Ash_05_G · Doors": {
+      "rule": "madera",
+      "texture": "ph:oak_veneer_01",
+      "source": "auto",
+      "override": null
+    },
+    "Slightly_worn_chrome_2 · Plumbing Fixtures": {
+      "rule": "metal",
+      "texture": "ph:blue_metal_plate",
+      "source": "auto",
+      "override": null
+    },
+    "Glossy_plastic · Plumbing Fixtures": {
+      "rule": "plastico",
+      "texture": "ph:linoleum_brown",
+      "source": "auto",
+      "override": null
+    },
+    "Brushed_aluminium_01 · Doors · familia vidrio": {
+      "rule": "metal",
+      "texture": "ph:blue_metal_plate",
+      "source": "auto",
+      "override": null
+    },
+    "MI_GlassRefractive01 · Doors": {
+      "rule": "vidrio",
+      "texture": null,
+      "source": "auto",
+      "override": null
+    },
+    "Metal_-_Steel_43-275 · Structural Columns": {
+      "rule": "metal",
+      "texture": "ph:blue_metal_plate",
+      "source": "auto",
+      "override": null
+    },
+    "Metal_-_Steel · Structural Framing": {
+      "rule": "metal",
+      "texture": "ph:blue_metal_plate",
+      "source": "auto",
+      "override": null
+    },
+    "Metal_-_Hadrian_-_Stainless_Steel · Specialty Equipment": {
+      "rule": "metal",
+      "texture": "ph:blue_metal_plate",
+      "source": "auto",
+      "override": null
+    },
+    "Glossy_plastic_2 · Specialty Equipment": {
+      "rule": "plastico",
+      "texture": "ph:linoleum_brown",
+      "source": "auto",
+      "override": null
+    },
+    "Concrete_-_Cast-in-Place_Concrete_-_35_MPa · Walls": {
+      "rule": "concreto",
+      "texture": "ph:asphalt_floor",
+      "source": "auto",
+      "override": null
+    },
+    "Soft_concrete_01 · Structural Framing": {
+      "rule": "concreto",
+      "texture": "ph:asphalt_floor",
+      "source": "auto",
+      "override": null
+    },
+    "Metal_Furring · Ceilings · familia aplanado / pintura": {
+      "rule": "metal",
+      "texture": "ph:blue_metal_plate",
+      "source": "auto",
+      "override": null
+    },
+    "Corten_steel_01 · Generic Models": {
+      "rule": "metal",
+      "texture": "ph:blue_metal_plate",
+      "source": "auto",
+      "override": null
+    },
+    "Iron__Cast · Plumbing Fixtures": {
+      "rule": "metal",
+      "texture": "ph:blue_metal_plate",
+      "source": "auto",
+      "override": null
+    },
+    "Rubber_Fine_01 · Furniture Systems": {
+      "rule": "plastico",
+      "texture": "ph:linoleum_brown",
+      "source": "auto",
+      "override": null
+    },
+    "Corten_steel_01 · Top Rails": {
+      "rule": "metal",
+      "texture": "ph:blue_metal_plate",
+      "source": "auto",
+      "override": null
+    },
+    "Painted_brick_01 · Walls · familia ladrillo / block": {
+      "rule": "aplanado",
+      "texture": "ph:white_stucco",
+      "source": "auto",
+      "override": null
+    },
+    "Base_context · Doors · familia metal / acero": {
+      "rule": "madera",
+      "texture": "ph:oak_veneer_01",
+      "source": "auto",
+      "override": null
+    },
+    "Silver_2 · Doors · familia madera": {
+      "rule": "metal",
+      "texture": "ph:blue_metal_plate",
+      "source": "auto",
+      "override": null
+    },
+    "Concrete__Cast-in-Place_gray · Structural Framing": {
+      "rule": "concreto",
+      "texture": "ph:asphalt_floor",
+      "source": "auto",
+      "override": null
+    },
+    "Diamond_plate_02 · Runs": {
+      "rule": "metal",
+      "texture": "ph:blue_metal_plate",
+      "source": "auto",
+      "override": null
+    },
+    "Corten_steel_01 · Runs": {
+      "rule": "metal",
+      "texture": "ph:blue_metal_plate",
+      "source": "auto",
+      "override": null
+    },
+    "Base_context_2 · Walls · familia concreto": {
+      "rule": "aplanado",
+      "texture": "ph:white_stucco",
+      "source": "auto",
+      "override": null
+    },
+    "GCP_DUROCK_OSCURO · Walls": {
+      "rule": "aplanado",
+      "texture": "ph:white_stucco",
+      "source": "auto",
+      "override": null
+    },
+    "Concreto_F_c_150_kg_cm2 · Wall Sweeps": {
+      "rule": "concreto",
+      "texture": "ph:asphalt_floor",
+      "source": "auto",
+      "override": null
+    },
+    "Glossy_plastic · Curtain Panels": {
+      "rule": "plastico",
+      "texture": "ph:linoleum_brown",
+      "source": "auto",
+      "override": null
+    },
+    "ARCAT_-_Metal_-_Steel_-_Chrome_Plated · Specialty Equipment": {
+      "rule": "metal",
+      "texture": "ph:blue_metal_plate",
+      "source": "auto",
+      "override": null
+    },
+    "ARCAT_-_HDPE__White · Specialty Equipment": {
+      "rule": "plastico",
+      "texture": "ph:linoleum_brown",
+      "source": "auto",
+      "override": null
+    },
+    "Ceramica · Plumbing Fixtures": {
+      "rule": "ceramico",
+      "texture": "ph:laminate_floor_02",
+      "source": "auto",
+      "override": null
+    },
+    "Corten_steel_01 · Plumbing Fixtures": {
+      "rule": "metal",
+      "texture": "ph:blue_metal_plate",
+      "source": "auto",
+      "override": null
+    },
+    "Corten_steel_01 · Furniture · familia pasto / vegetación": {
+      "rule": "metal",
+      "texture": "ph:blue_metal_plate",
+      "source": "auto",
+      "override": null
+    },
+    "Brushed_aluminium_01 · Doors": {
+      "rule": "metal",
+      "texture": "ph:blue_metal_plate",
+      "source": "auto",
+      "override": null
+    },
+    "Glass__Green · Walls · familia aplanado / pintura": {
+      "rule": "vidrio",
+      "texture": null,
+      "source": "auto",
+      "override": null
+    },
+    "Impermeabilizante · Floors": {
+      "rule": "cubierta",
+      "texture": "ph:corrugated_iron_02",
+      "source": "auto",
+      "override": null
+    },
+    "SSG_Laminate_Designer_White_Revit_Color · Casework": {
+      "rule": "metal",
+      "texture": "ph:blue_metal_plate",
+      "source": "auto",
+      "override": null
+    },
+    "SSG_Laminate_Kensington__Maple_Revit_Image · Casework": {
+      "rule": "madera",
+      "texture": "ph:oak_veneer_01",
+      "source": "auto",
+      "override": null
+    },
+    "SSG_Metal_Black_Matte · Casework": {
+      "rule": "metal",
+      "texture": "ph:blue_metal_plate",
+      "source": "auto",
+      "override": null
+    },
+    "Corten_steel_01 · Doors": {
+      "rule": "metal",
+      "texture": "ph:blue_metal_plate",
+      "source": "auto",
+      "override": null
+    },
+    "Concrete_tiles_5 · Floors": {
+      "rule": "concreto",
+      "texture": "ph:asphalt_floor",
+      "source": "auto",
+      "override": null
+    },
+    "Scratched_Painted_Metal_Sheet · Doors": {
+      "rule": "metal",
+      "texture": "ph:blue_metal_plate",
+      "source": "auto",
+      "override": null
+    },
+    "SSG-Metal-Stainless_Steel-Polished · Plumbing Fixtures": {
+      "rule": "metal",
+      "texture": "ph:blue_metal_plate",
+      "source": "auto",
+      "override": null
+    },
+    "SSG-Undercoating-Black · Plumbing Fixtures": {
+      "rule": "plastico",
+      "texture": "ph:linoleum_brown",
+      "source": "auto",
+      "override": null
+    },
+    "SSG-Metal-Stainless_Steel-Semi_Polished · Plumbing Fixtures": {
+      "rule": "metal",
+      "texture": "ph:blue_metal_plate",
+      "source": "auto",
+      "override": null
+    },
+    "GCP_PLAFON_RHVERDE · Ceilings": {
+      "rule": "aplanado",
+      "texture": "ph:white_stucco",
+      "source": "auto",
+      "override": null
+    },
+    "Diamond_plate_02 · Landings": {
+      "rule": "metal",
+      "texture": "ph:blue_metal_plate",
+      "source": "auto",
+      "override": null
+    },
+    "Corten_steel_01 · Landings": {
+      "rule": "metal",
+      "texture": "ph:blue_metal_plate",
+      "source": "auto",
+      "override": null
+    },
+    "Foam_01 · Furniture Systems": {
+      "rule": "tela",
+      "texture": "ph:fabric_pattern_07",
+      "source": "auto",
+      "override": null
+    },
+    "Framery_-_Veneer_-_Birch · Furniture Systems": {
+      "rule": "madera",
+      "texture": "ph:oak_veneer_01",
+      "source": "auto",
+      "override": null
+    },
+    "Framery_-_Table_-_Standard_-_White · Furniture Systems": {
+      "rule": "madera",
+      "texture": "ph:oak_veneer_01",
+      "source": "auto",
+      "override": null
+    },
+    "LED · Furniture Systems": {
+      "rule": "emisivo",
+      "texture": null,
+      "source": "auto",
+      "override": null
+    },
+    "Plastic_-_Black_-_Transparent · Furniture Systems": {
+      "rule": "plastico",
+      "texture": "ph:linoleum_brown",
+      "source": "auto",
+      "override": null
+    },
+    "LED_low · Furniture Systems": {
+      "rule": "emisivo",
+      "texture": null,
+      "source": "auto",
+      "override": null
+    },
+    "Laminated_Glass · Furniture Systems": {
+      "rule": "vidrio",
+      "texture": null,
+      "source": "auto",
+      "override": null
+    },
+    "Plastic_-_White_-_Transparent · Furniture Systems": {
+      "rule": "plastico",
+      "texture": "ph:linoleum_brown",
+      "source": "auto",
+      "override": null
+    },
+    "Non_slip_flooring_02_4 · Furniture Systems": {
+      "rule": "plastico",
+      "texture": "ph:linoleum_brown",
+      "source": "auto",
+      "override": null
+    },
+    "LED_Green · Furniture Systems": {
+      "rule": "emisivo",
+      "texture": null,
+      "source": "auto",
+      "override": null
+    },
+    "Steel_ASTM_A500__Grade_B__Rectangular_and_Square · Structural Columns": {
+      "rule": "metal",
+      "texture": "ph:blue_metal_plate",
+      "source": "auto",
+      "override": null
+    },
+    "GCP_CONCRETO_PINTURA_EPOXICA · Walls · familia ladrillo / block": {
+      "rule": "aplanado",
+      "texture": "ph:white_stucco",
+      "source": "auto",
+      "override": null
+    },
+    "GCP_TABLACEMENTO_PLAFON · Ceilings": {
+      "rule": "aplanado",
+      "texture": "ph:white_stucco",
+      "source": "auto",
+      "override": null
+    },
+    "GCP_CONCRETO_PREC · Walls": {
+      "rule": "concreto",
+      "texture": "ph:asphalt_floor",
+      "source": "auto",
+      "override": null
+    },
+    "GCP_TABIQUE_REPELLADO · Walls · familia ladrillo / block": {
+      "rule": "aplanado",
+      "texture": "ph:white_stucco",
+      "source": "auto",
+      "override": null
+    },
+    "SSG_-_Plastic_-_Green_-_Matte · Plumbing Fixtures": {
+      "rule": "plastico",
+      "texture": "ph:linoleum_brown",
+      "source": "auto",
+      "override": null
+    },
+    "SSG_-_Metal_-_Brass_-_Chrome_Plated · Plumbing Fixtures": {
+      "rule": "metal",
+      "texture": "ph:blue_metal_plate",
+      "source": "auto",
+      "override": null
+    },
+    "SSG_-_Plastic_-_Red_-_Matte · Plumbing Fixtures": {
+      "rule": "plastico",
+      "texture": "ph:linoleum_brown",
+      "source": "auto",
+      "override": null
+    },
+    "ALUMINIO · Generic Models · familia espejo": {
+      "rule": "metal",
+      "texture": "ph:blue_metal_plate",
+      "source": "auto",
+      "override": null
+    },
+    "Corten_steel_01 · Doors · familia vidrio": {
+      "rule": "metal",
+      "texture": "ph:blue_metal_plate",
+      "source": "auto",
+      "override": null
+    },
+    "Default_Floor · Floors": {
+      "rule": "concreto",
+      "texture": "ph:asphalt_floor",
+      "source": "auto",
+      "override": null
+    },
+    "ESPEJO · Generic Models": {
+      "rule": "espejo",
+      "texture": null,
+      "source": "auto",
+      "override": null
+    },
+    "Glass__Clear_Glazing · Doors": {
+      "rule": "vidrio",
+      "texture": null,
+      "source": "auto",
+      "override": null
+    },
+    "Scratched_Painted_Metal_Sheet · Doors · familia madera": {
+      "rule": "metal",
+      "texture": "ph:blue_metal_plate",
+      "source": "auto",
+      "override": null
+    },
+    "GCP_ASFALTO_5cm · Floors": {
+      "rule": "asfalto",
+      "texture": "ph:asphalt_track",
+      "source": "auto",
+      "override": null
+    },
+    "Concrete_-_Cast-in-Place_Concrete_-_35_MPa · Structural Foundations": {
+      "rule": "concreto",
+      "texture": "ph:asphalt_floor",
+      "source": "auto",
+      "override": null
+    },
+    "Default_Roof · Floors": {
+      "rule": "concreto",
+      "texture": "ph:asphalt_floor",
+      "source": "auto",
+      "override": null
+    },
+    "Metal_-_Kohler_-_Brass · Plumbing Fixtures · familia cerámico / porcelanato": {
+      "rule": "metal",
+      "texture": "ph:blue_metal_plate",
+      "source": "auto",
+      "override": null
+    },
+    "Metal_-_Kohler_-_CP_-_Polished_Chrome · Plumbing Fixtures · familia cerámico / porcelanato": {
+      "rule": "metal",
+      "texture": "ph:blue_metal_plate",
+      "source": "auto",
+      "override": null
+    },
+    "Vitreous_China_-_Kohler_-_0_-_White · Plumbing Fixtures": {
+      "rule": "ceramico",
+      "texture": "ph:laminate_floor_02",
+      "source": "auto",
+      "override": null
+    },
+    "Concrete_-_Cast-in-Place_Concrete · Floors": {
+      "rule": "concreto",
+      "texture": "ph:asphalt_floor",
+      "source": "auto",
+      "override": null
+    },
+    "Pegapiso · Floors": {
+      "rule": "ceramico",
+      "texture": "ph:laminate_floor_02",
+      "source": "auto",
+      "override": null
+    },
+    "Base_context · Doors · familia vidrio": {
+      "rule": "madera",
+      "texture": "ph:oak_veneer_01",
+      "source": "auto",
+      "override": null
+    },
+    "Base_context · Doors": {
+      "rule": "madera",
+      "texture": "ph:oak_veneer_01",
+      "source": "auto",
+      "override": null
+    },
+    "Silver_2 · Doors": {
+      "rule": "metal",
+      "texture": "ph:blue_metal_plate",
+      "source": "auto",
+      "override": null
+    },
+    "Concrete_-_Cast-in-Place_Concrete_2 · Floors": {
+      "rule": "concreto",
+      "texture": "ph:asphalt_floor",
+      "source": "auto",
+      "override": null
+    },
+    "BLOCK_15X20X40 · Walls": {
+      "rule": "ladrillo",
+      "texture": "ph:white_sandstone_bricks_03",
+      "source": "auto",
+      "override": null
+    },
+    "GCP_PLAFON_CIEGO_TABLAROCA · Ceilings": {
+      "rule": "aplanado",
+      "texture": "ph:white_stucco",
+      "source": "auto",
+      "override": null
+    },
+    "GCP_PORCELANATO_30X30cm · Floors": {
+      "rule": "ceramico",
+      "texture": "ph:laminate_floor_02",
+      "source": "auto",
+      "override": null
+    },
+    "Brushed_aluminium_01 · Plumbing Fixtures": {
+      "rule": "metal",
+      "texture": "ph:blue_metal_plate",
+      "source": "auto",
+      "override": null
+    },
+    "Concreto_F_c_250_kg_cm2 · Floors": {
+      "rule": "concreto",
+      "texture": "ph:asphalt_floor",
+      "source": "auto",
+      "override": null
+    },
+    "GCP_LAMINA_KR-18 · Roofs": {
+      "rule": "metal",
+      "texture": "ph:blue_metal_plate",
+      "source": "auto",
+      "override": null
+    },
+    "Laminate_-_Ivory_Matte · Furniture": {
+      "rule": "plastico",
+      "texture": "ph:linoleum_brown",
+      "source": "auto",
+      "override": null
+    },
+    "Wood_-_Birch · Furniture": {
+      "rule": "madera",
+      "texture": "ph:oak_veneer_01",
+      "source": "auto",
+      "override": null
+    },
+    "Brushed_aluminium_01 · Furniture": {
+      "rule": "metal",
+      "texture": "ph:blue_metal_plate",
+      "source": "auto",
+      "override": null
+    },
+    "Redcedar_06_G · Furniture": {
+      "rule": "madera",
+      "texture": "ph:oak_veneer_01",
+      "source": "auto",
+      "override": null
+    },
+    "Base_context · Walls · familia ladrillo / block": {
+      "rule": "aplanado",
+      "texture": "ph:white_stucco",
+      "source": "auto",
+      "override": null
+    },
+    "GCP_MULTYTECHO · Roofs": {
+      "rule": "cubierta",
+      "texture": "ph:corrugated_iron_02",
+      "source": "auto",
+      "override": null
+    },
+    "Laminate__White__Matte · Generic Models": {
+      "rule": "plastico",
+      "texture": "ph:linoleum_brown",
+      "source": "auto",
+      "override": null
+    },
+    "ESPEJO · Windows": {
+      "rule": "espejo",
+      "texture": null,
+      "source": "auto",
+      "override": null
+    },
+    "ALUMINIO · Windows · familia espejo": {
+      "rule": "metal",
+      "texture": "ph:blue_metal_plate",
+      "source": "auto",
+      "override": null
+    },
+    "GCP_CONCRETO_RUSTICO · Floors": {
+      "rule": "concreto",
+      "texture": "ph:asphalt_floor",
+      "source": "auto",
+      "override": null
+    },
+    "GCP_PEDESTRALES_DE_ALUMINIO · Floors": {
+      "rule": "metal",
+      "texture": "ph:blue_metal_plate",
+      "source": "auto",
+      "override": null
+    },
+    "GCP_PISO_PORCELANATO · Floors": {
+      "rule": "ceramico",
+      "texture": "ph:laminate_floor_02",
+      "source": "auto",
+      "override": null
+    },
+    "Polished_concrete_01 · Floors": {
+      "rule": "concreto",
+      "texture": "ph:asphalt_floor",
+      "source": "auto",
+      "override": null
+    },
+    "GCP_FIRME_DIAMANTE · Floors": {
+      "rule": "concreto",
+      "texture": "ph:asphalt_floor",
+      "source": "auto",
+      "override": null
+    },
+    "Light_metal_flake_paint · Generic Models": {
+      "rule": "metal",
+      "texture": "ph:blue_metal_plate",
+      "source": "auto",
+      "override": null
+    },
+    "Air · Walls": {
+      "rule": "aplanado",
+      "texture": "ph:white_stucco",
+      "source": "auto",
+      "override": null
+    },
+    "Aluminium_panels_300x150_2 · Walls": {
+      "rule": "metal",
+      "texture": "ph:blue_metal_plate",
+      "source": "auto",
+      "override": null
+    },
+    "Verco_Plastic_MatteBlack · Furniture": {
+      "rule": "plastico",
+      "texture": "ph:linoleum_brown",
+      "source": "auto",
+      "override": null
+    },
+    "Default_Roof · Gutters": {
+      "rule": "metal",
+      "texture": "ph:blue_metal_plate",
+      "source": "auto",
+      "override": null
+    },
+    "Base_context_2 · Furniture": {
+      "rule": "madera",
+      "texture": "ph:oak_veneer_01",
+      "source": "auto",
+      "override": null
+    },
+    "SSG_Laminate_Kensington__Maple_Revit_Image · Furniture": {
+      "rule": "madera",
+      "texture": "ph:oak_veneer_01",
+      "source": "auto",
+      "override": null
+    },
+    "Classic_linoleum · Generic Models": {
+      "rule": "plastico",
+      "texture": "ph:linoleum_brown",
+      "source": "auto",
+      "override": null
+    },
+    "Corten_steel_01 · Structural Framing · familia concreto": {
+      "rule": "metal",
+      "texture": "ph:blue_metal_plate",
+      "source": "auto",
+      "override": null
+    },
+    "Base_context · Walls · familia concreto": {
+      "rule": "aplanado",
+      "texture": "ph:white_stucco",
+      "source": "auto",
+      "override": null
+    },
+    "GCP_DUROCK_OSCURO · Walls · familia concreto": {
+      "rule": "aplanado",
+      "texture": "ph:white_stucco",
+      "source": "auto",
+      "override": null
+    },
+    "GCP_CONCRETO_PINTURA_EPOXICA · Walls": {
+      "rule": "aplanado",
+      "texture": "ph:white_stucco",
+      "source": "auto",
+      "override": null
+    },
+    "GCP_MULTYTECHO · Roofs · familia metal / acero": {
+      "rule": "cubierta",
+      "texture": "ph:corrugated_iron_02",
+      "source": "auto",
+      "override": null
+    },
+    "Base_context_2 · Floors": {
+      "rule": "concreto",
+      "texture": "ph:asphalt_floor",
+      "source": "auto",
+      "override": null
+    },
+    "GCP_ACERO · Generic Models": {
+      "rule": "metal",
+      "texture": "ph:blue_metal_plate",
+      "source": "auto",
+      "override": null
+    },
+    "Base_context_2 · Ceilings · familia concreto": {
+      "rule": "aplanado",
+      "texture": "ph:white_stucco",
+      "source": "auto",
+      "override": null
+    },
+    "GCP_MULTYTECHO · Floors": {
+      "rule": "cubierta",
+      "texture": "ph:corrugated_iron_02",
+      "source": "auto",
+      "override": null
+    },
+    "GCP_LAMINA_KR-101 · Roofs": {
+      "rule": "metal",
+      "texture": "ph:blue_metal_plate",
+      "source": "auto",
+      "override": null
+    },
+    "Metal_-_Steel__Polished · Specialty Equipment": {
+      "rule": "metal",
+      "texture": "ph:blue_metal_plate",
+      "source": "auto",
+      "override": null
+    },
+    "Metal_-_Chrome · Specialty Equipment": {
+      "rule": "metal",
+      "texture": "ph:blue_metal_plate",
+      "source": "auto",
+      "override": null
+    },
+    "Brushed_aluminium_01 · Curtain Panels": {
+      "rule": "metal",
+      "texture": "ph:blue_metal_plate",
+      "source": "auto",
+      "override": null
+    },
+    "Corten_steel_01 · Windows": {
+      "rule": "metal",
+      "texture": "ph:blue_metal_plate",
+      "source": "auto",
+      "override": null
+    },
+    "Default_Wall · Walls": {
+      "rule": "aplanado",
+      "texture": "ph:white_stucco",
+      "source": "auto",
+      "override": null
+    },
+    "GCP_TABLAROCA_LAMBRIN · Walls": {
+      "rule": "aplanado",
+      "texture": "ph:white_stucco",
+      "source": "auto",
+      "override": null
+    },
+    "Steel · Doors": {
+      "rule": "metal",
+      "texture": "ph:blue_metal_plate",
+      "source": "auto",
+      "override": null
+    },
+    "Steel__Galvanized · Doors": {
+      "rule": "metal",
+      "texture": "ph:blue_metal_plate",
+      "source": "auto",
+      "override": null
+    },
+    "Dorma_-_Brushed_Stainless_Steel · Doors": {
+      "rule": "metal",
+      "texture": "ph:blue_metal_plate",
+      "source": "auto",
+      "override": null
+    },
+    "Plastic__Opaque_Black · Furniture": {
+      "rule": "plastico",
+      "texture": "ph:linoleum_brown",
+      "source": "auto",
+      "override": null
+    },
+    "Textile_-_Slate_Blue · Furniture": {
+      "rule": "tela",
+      "texture": "ph:fabric_pattern_07",
+      "source": "auto",
+      "override": null
+    },
+    "Laminate__Ivory__Matte · Furniture": {
+      "rule": "plastico",
+      "texture": "ph:linoleum_brown",
+      "source": "auto",
+      "override": null
+    },
+    "Steel__Chrome_Plated · Furniture": {
+      "rule": "metal",
+      "texture": "ph:blue_metal_plate",
+      "source": "auto",
+      "override": null
+    },
+    "Cherry · Furniture": {
+      "rule": "madera",
+      "texture": "ph:oak_veneer_01",
+      "source": "auto",
+      "override": null
+    },
+    "Crushed_Stone · Floors": {
+      "rule": "terreno",
+      "texture": "ph:rocks_ground_02",
+      "source": "auto",
+      "override": null
+    },
+    "Stone_wall_3 · Floors": {
+      "rule": "piedra",
+      "texture": "ph:marble_01",
+      "source": "auto",
+      "override": null
+    },
+    "Painted_brick_01_2 · Walls · familia ladrillo / block": {
+      "rule": "aplanado",
+      "texture": "ph:white_stucco",
+      "source": "auto",
+      "override": null
+    },
+    "Marco_metalico · Doors": {
+      "rule": "metal",
+      "texture": "ph:blue_metal_plate",
+      "source": "auto",
+      "override": null
+    },
+    "Puerta_metalica · Doors": {
+      "rule": "metal",
+      "texture": "ph:blue_metal_plate",
+      "source": "auto",
+      "override": null
+    },
+    "Vinilo · Specialty Equipment": {
+      "rule": "plastico",
+      "texture": "ph:linoleum_brown",
+      "source": "auto",
+      "override": null
+    },
+    "Goma · Specialty Equipment": {
+      "rule": "plastico",
+      "texture": "ph:linoleum_brown",
+      "source": "auto",
+      "override": null
+    },
+    "Brushed_aluminium_01 · Specialty Equipment": {
+      "rule": "metal",
+      "texture": "ph:blue_metal_plate",
+      "source": "auto",
+      "override": null
+    },
+    "Cristal__cristalera_transparente__templado · Specialty Equipment": {
+      "rule": "vidrio",
+      "texture": null,
+      "source": "auto",
+      "override": null
+    },
+    "Brushed_aluminium_01 · Generic Models": {
+      "rule": "metal",
+      "texture": "ph:blue_metal_plate",
+      "source": "auto",
+      "override": null
+    },
+    "Acetal_Resin__Black · Generic Models": {
+      "rule": "plastico",
+      "texture": "ph:linoleum_brown",
+      "source": "auto",
+      "override": null
+    },
+    "Leather_-_Black · Furniture": {
+      "rule": "tela",
+      "texture": "ph:fabric_pattern_07",
+      "source": "auto",
+      "override": null
+    },
+    "Metal_-_Chrome · Furniture": {
+      "rule": "metal",
+      "texture": "ph:blue_metal_plate",
+      "source": "auto",
+      "override": null
+    },
+    "Scratched_Painted_Metal_Sheet · Mechanical Equipment": {
+      "rule": "metal",
+      "texture": "ph:blue_metal_plate",
+      "source": "auto",
+      "override": null
+    },
+    "GCP_TABLACEMENTO_MURO · Walls": {
+      "rule": "aplanado",
+      "texture": "ph:white_stucco",
+      "source": "auto",
+      "override": null
+    },
+    "Light_metal_flake_paint_2 · Walls": {
+      "rule": "aplanado",
+      "texture": "ph:white_stucco",
+      "source": "auto",
+      "override": null
+    },
+    "Base_context · Floors": {
+      "rule": "aplanado",
+      "texture": "ph:white_stucco",
+      "source": "auto",
+      "override": null
+    },
+    "Aluminium_panels_300x150 · Walls": {
+      "rule": "metal",
+      "texture": "ph:blue_metal_plate",
+      "source": "auto",
+      "override": null
+    },
+    "GCP_PORCELANATO_60x60cm · Floors": {
+      "rule": "ceramico",
+      "texture": "ph:laminate_floor_02",
+      "source": "auto",
+      "override": null
+    },
+    "GCP_CRISTAL_6mm · Roofs": {
+      "rule": "vidrio",
+      "texture": null,
+      "source": "auto",
+      "override": null
+    },
+    "Aluminum_7075 · Gutters": {
+      "rule": "metal",
+      "texture": "ph:blue_metal_plate",
+      "source": "auto",
+      "override": null
+    }
+  },
+  "antiTile": "inf",
+  "ruleTint": {
+    "metal": "#ffffff",
+    "aplanado": "#ecebe7",
+    "plastico": "#ffffff",
+    "vidrio": "#ffffff",
+    "tela": "#8a8c90",
+    "concreto": "#ffffff",
+    "madera": "#ffffff",
+    "ceramico": "#ffffff",
+    "emisivo": "#ffffff",
+    "cubierta": "#ffffff",
+    "espejo": "#ffffff",
+    "asfalto": "#ffffff",
+    "ladrillo": "#ffffff",
+    "terreno": "#ffffff",
+    "piedra": "#ffffff"
+  },
+  "ruleTex": {
+    "metal": "ph:blue_metal_plate",
+    "aplanado": "ph:white_stucco",
+    "plastico": "ph:linoleum_brown",
+    "tela": "ph:fabric_pattern_07",
+    "concreto": "ph:asphalt_floor",
+    "madera": "ph:oak_veneer_01",
+    "ceramico": "ph:laminate_floor_02",
+    "cubierta": "ph:corrugated_iron_02",
+    "asfalto": "ph:asphalt_track",
+    "ladrillo": "ph:white_sandstone_bricks_03",
+    "terreno": "ph:rocks_ground_02",
+    "piedra": "ph:marble_01"
+  },
+  "textures": [
+    {
+      "id": "ph:blue_metal_plate",
+      "label": "Blue Metal Plate",
+      "source": "polyhaven",
+      "scale": 2.5,
+      "normalDX": false,
+      "tags": [
+        "blue",
+        "metal",
+        "plate",
+        "blue",
+        "metal",
+        "plate",
+        "metal",
+        "industrial",
+        "scratched",
+        "metal",
+        "sheet",
+        "metal",
+        "painted",
+        "industrial",
+        "scratches",
+        "scuffed",
+        "steel",
+        "panel",
+        "abrasion",
+        "marks",
+        "blue",
+        "metal",
+        "plate",
+        "metal",
+        "sheet",
+        "corrugated",
+        "flat",
+        "sheet"
+      ],
+      "thumb": "https://cdn.polyhaven.com/asset_img/thumbs/blue_metal_plate.png?width=256&height=256&format=webp&v=0e02b3a2",
+      "url": "https://polyhaven.com/a/blue_metal_plate",
+      "maps": {
+        "map": {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/blue_metal_plate/blue_metal_plate_diff_1k.jpg",
+          "path": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/blue_metal_plate/blue_metal_plate_diff_1k.jpg"
+        },
+        "normalMap": {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/blue_metal_plate/blue_metal_plate_nor_gl_1k.jpg",
+          "path": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/blue_metal_plate/blue_metal_plate_nor_gl_1k.jpg"
+        },
+        "arm": {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/blue_metal_plate/blue_metal_plate_arm_1k.jpg",
+          "path": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/blue_metal_plate/blue_metal_plate_arm_1k.jpg"
+        },
+        "aoMap": {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/blue_metal_plate/blue_metal_plate_ao_1k.jpg",
+          "path": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/blue_metal_plate/blue_metal_plate_ao_1k.jpg"
+        },
+        "roughnessMap": {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/blue_metal_plate/blue_metal_plate_rough_1k.jpg",
+          "path": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/blue_metal_plate/blue_metal_plate_rough_1k.jpg"
+        }
+      }
+    },
+    {
+      "id": "ph:white_stucco",
+      "label": "White Stucco",
+      "source": "polyhaven",
+      "scale": 1.9980629682540894,
+      "normalDX": false,
+      "tags": [
+        "white",
+        "stucco",
+        "white",
+        "stucco",
+        "wall",
+        "man",
+        "made",
+        "wall",
+        "man",
+        "made",
+        "plaster",
+        "indoor",
+        "rough",
+        "wall",
+        "painted",
+        "stucco",
+        "white",
+        "granular",
+        "matte",
+        "uneven",
+        "porous",
+        "plaster",
+        "concrete",
+        "plaster",
+        "stucco",
+        "bare",
+        "plaster"
+      ],
+      "thumb": "https://cdn.polyhaven.com/asset_img/thumbs/white_stucco.png?width=256&height=256&format=webp&v=10c37d5f",
+      "url": "https://polyhaven.com/a/white_stucco",
+      "maps": {
+        "aoMap": {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/white_stucco/white_stucco_ao_1k.jpg",
+          "path": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/white_stucco/white_stucco_ao_1k.jpg"
+        },
+        "arm": {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/white_stucco/white_stucco_arm_1k.jpg",
+          "path": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/white_stucco/white_stucco_arm_1k.jpg"
+        },
+        "map": {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/white_stucco/white_stucco_diff_1k.jpg",
+          "path": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/white_stucco/white_stucco_diff_1k.jpg"
+        },
+        "normalMap": {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/white_stucco/white_stucco_nor_gl_1k.jpg",
+          "path": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/white_stucco/white_stucco_nor_gl_1k.jpg"
+        },
+        "roughnessMap": {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/white_stucco/white_stucco_rough_1k.jpg",
+          "path": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/white_stucco/white_stucco_rough_1k.jpg"
+        }
+      }
+    },
+    {
+      "id": "ph:linoleum_brown",
+      "label": "Linoleum Brown",
+      "source": "polyhaven",
+      "scale": 2,
+      "normalDX": false,
+      "tags": [
+        "linoleum",
+        "brown",
+        "linoleum",
+        "brown",
+        "floor",
+        "man",
+        "made",
+        "linolium",
+        "wood",
+        "wood",
+        "look",
+        "flooring",
+        "synthetic",
+        "vinyl",
+        "canvas",
+        "weathered",
+        "brown",
+        "plastic",
+        "rubber",
+        "vinyl",
+        "linoleum",
+        "linoleum"
+      ],
+      "thumb": "https://cdn.polyhaven.com/asset_img/thumbs/linoleum_brown.png?width=256&height=256&format=webp&v=ec722ba7",
+      "url": "https://polyhaven.com/a/linoleum_brown",
+      "maps": {
+        "aoMap": {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/linoleum_brown/linoleum_brown_ao_1k.jpg",
+          "path": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/linoleum_brown/linoleum_brown_ao_1k.jpg"
+        },
+        "arm": {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/linoleum_brown/linoleum_brown_arm_1k.jpg",
+          "path": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/linoleum_brown/linoleum_brown_arm_1k.jpg"
+        },
+        "map": {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/linoleum_brown/linoleum_brown_diff_1k.jpg",
+          "path": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/linoleum_brown/linoleum_brown_diff_1k.jpg"
+        },
+        "normalMap": {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/linoleum_brown/linoleum_brown_nor_gl_1k.jpg",
+          "path": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/linoleum_brown/linoleum_brown_nor_gl_1k.jpg"
+        },
+        "roughnessMap": {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/linoleum_brown/linoleum_brown_rough_1k.jpg",
+          "path": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/linoleum_brown/linoleum_brown_rough_1k.jpg"
+        }
+      }
+    },
+    {
+      "id": "ph:fabric_pattern_07",
+      "label": "Fabric Pattern 07",
+      "source": "polyhaven",
+      "scale": 0.4000000059604645,
+      "normalDX": false,
+      "tags": [
+        "fabric",
+        "pattern",
+        "07",
+        "fabric",
+        "pattern",
+        "07",
+        "fabric",
+        "cotton",
+        "towel",
+        "plain",
+        "cloth",
+        "checkered",
+        "woven",
+        "textile",
+        "picnic",
+        "textiles",
+        "leather",
+        "woven",
+        "plaid",
+        "check"
+      ],
+      "thumb": "https://cdn.polyhaven.com/asset_img/thumbs/fabric_pattern_07.png?width=256&height=256&format=webp&v=8bf5bc82",
+      "url": "https://polyhaven.com/a/fabric_pattern_07",
+      "maps": {
+        "normalMap": {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/fabric_pattern_07/fabric_pattern_07_nor_gl_1k.jpg",
+          "path": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/fabric_pattern_07/fabric_pattern_07_nor_gl_1k.jpg"
+        },
+        "arm": {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/fabric_pattern_07/fabric_pattern_07_arm_1k.jpg",
+          "path": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/fabric_pattern_07/fabric_pattern_07_arm_1k.jpg"
+        },
+        "aoMap": {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/fabric_pattern_07/fabric_pattern_07_ao_1k.jpg",
+          "path": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/fabric_pattern_07/fabric_pattern_07_ao_1k.jpg"
+        },
+        "roughnessMap": {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/fabric_pattern_07/fabric_pattern_07_rough_1k.jpg",
+          "path": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/fabric_pattern_07/fabric_pattern_07_rough_1k.jpg"
+        }
+      }
+    },
+    {
+      "id": "ph:oak_veneer_01",
+      "label": "Oak Veneer 01",
+      "source": "polyhaven",
+      "scale": 1.8300000429153442,
+      "normalDX": false,
+      "tags": [
+        "oak",
+        "veneer",
+        "01",
+        "oak",
+        "veneer",
+        "01",
+        "wood",
+        "raw",
+        "wood",
+        "natural",
+        "veneer",
+        "oak",
+        "grain",
+        "wood",
+        "grain",
+        "natural",
+        "wood",
+        "road",
+        "wood",
+        "veneer",
+        "oak",
+        "veneer"
+      ],
+      "thumb": "https://cdn.polyhaven.com/asset_img/thumbs/oak_veneer_01.png?width=256&height=256&format=webp&v=bd35f4bb",
+      "url": "https://polyhaven.com/a/oak_veneer_01",
+      "maps": {
+        "map": {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/oak_veneer_01/oak_veneer_01_diff_1k.jpg",
+          "path": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/oak_veneer_01/oak_veneer_01_diff_1k.jpg"
+        },
+        "normalMap": {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/oak_veneer_01/oak_veneer_01_nor_gl_1k.jpg",
+          "path": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/oak_veneer_01/oak_veneer_01_nor_gl_1k.jpg"
+        },
+        "arm": {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/oak_veneer_01/oak_veneer_01_arm_1k.jpg",
+          "path": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/oak_veneer_01/oak_veneer_01_arm_1k.jpg"
+        },
+        "aoMap": {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/oak_veneer_01/oak_veneer_01_ao_1k.jpg",
+          "path": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/oak_veneer_01/oak_veneer_01_ao_1k.jpg"
+        },
+        "roughnessMap": {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/oak_veneer_01/oak_veneer_01_rough_1k.jpg",
+          "path": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/oak_veneer_01/oak_veneer_01_rough_1k.jpg"
+        }
+      }
+    },
+    {
+      "id": "ph:asphalt_floor",
+      "label": "Asphalt Floor",
+      "source": "polyhaven",
+      "scale": 2.3499999046325684,
+      "normalDX": false,
+      "tags": [
+        "asphalt",
+        "floor",
+        "asphalt",
+        "floor",
+        "outdoor",
+        "man",
+        "made",
+        "floor",
+        "clean",
+        "concrete",
+        "road",
+        "asphalt",
+        "plaster",
+        "concrete",
+        "flat",
+        "asphalt",
+        "brown",
+        "even",
+        "dry",
+        "smooth",
+        "ground",
+        "asphalt",
+        "bitumen",
+        "asphalt",
+        "fresh",
+        "asphalt"
+      ],
+      "thumb": "https://cdn.polyhaven.com/asset_img/thumbs/asphalt_floor.png?width=256&height=256&format=webp&v=581f44ef",
+      "url": "https://polyhaven.com/a/asphalt_floor",
+      "maps": {
+        "map": {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/asphalt_floor/asphalt_floor_diff_1k.jpg",
+          "path": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/asphalt_floor/asphalt_floor_diff_1k.jpg"
+        },
+        "normalMap": {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/asphalt_floor/asphalt_floor_nor_gl_1k.jpg",
+          "path": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/asphalt_floor/asphalt_floor_nor_gl_1k.jpg"
+        },
+        "arm": {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/asphalt_floor/asphalt_floor_arm_1k.jpg",
+          "path": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/asphalt_floor/asphalt_floor_arm_1k.jpg"
+        },
+        "roughnessMap": {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/asphalt_floor/asphalt_floor_rough_1k.jpg",
+          "path": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/asphalt_floor/asphalt_floor_rough_1k.jpg"
+        },
+        "aoMap": {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/asphalt_floor/asphalt_floor_ao_1k.jpg",
+          "path": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/asphalt_floor/asphalt_floor_ao_1k.jpg"
+        }
+      }
+    },
+    {
+      "id": "ph:laminate_floor_02",
+      "label": "Laminate Floor 02",
+      "source": "polyhaven",
+      "scale": 1.6999999284744263,
+      "normalDX": false,
+      "tags": [
+        "laminate",
+        "floor",
+        "02",
+        "laminate",
+        "floor",
+        "02",
+        "floor",
+        "man",
+        "made",
+        "indoor",
+        "clean",
+        "wood",
+        "even",
+        "flat",
+        "wooden",
+        "floor",
+        "laminate",
+        "smooth",
+        "tiles",
+        "brown",
+        "wood",
+        "planks",
+        "wood",
+        "engineered",
+        "wood",
+        "laminate"
+      ],
+      "thumb": "https://cdn.polyhaven.com/asset_img/thumbs/laminate_floor_02.png?width=256&height=256&format=webp&v=ac2f3a73",
+      "url": "https://polyhaven.com/a/laminate_floor_02",
+      "maps": {
+        "map": {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/laminate_floor_02/laminate_floor_02_diff_1k.jpg",
+          "path": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/laminate_floor_02/laminate_floor_02_diff_1k.jpg"
+        },
+        "normalMap": {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/laminate_floor_02/laminate_floor_02_nor_gl_1k.jpg",
+          "path": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/laminate_floor_02/laminate_floor_02_nor_gl_1k.jpg"
+        },
+        "arm": {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/laminate_floor_02/laminate_floor_02_arm_1k.jpg",
+          "path": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/laminate_floor_02/laminate_floor_02_arm_1k.jpg"
+        },
+        "roughnessMap": {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/laminate_floor_02/laminate_floor_02_rough_1k.jpg",
+          "path": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/laminate_floor_02/laminate_floor_02_rough_1k.jpg"
+        },
+        "aoMap": {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/laminate_floor_02/laminate_floor_02_ao_1k.jpg",
+          "path": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/laminate_floor_02/laminate_floor_02_ao_1k.jpg"
+        }
+      }
+    },
+    {
+      "id": "ph:corrugated_iron_02",
+      "label": "Corrugated Iron 02",
+      "source": "polyhaven",
+      "scale": 2.700000047683716,
+      "normalDX": false,
+      "tags": [
+        "corrugated",
+        "iron",
+        "02",
+        "corrugated",
+        "iron",
+        "02",
+        "man",
+        "made",
+        "wall",
+        "metal",
+        "metal",
+        "metallic",
+        "metal",
+        "sheet",
+        "steel",
+        "sheeting",
+        "corrugation",
+        "galvanized",
+        "sheet",
+        "roofing",
+        "roof",
+        "iron",
+        "corrugated",
+        "corrugated",
+        "iron",
+        "metal",
+        "sheet",
+        "corrugated",
+        "corrugated",
+        "iron"
+      ],
+      "thumb": "https://cdn.polyhaven.com/asset_img/thumbs/corrugated_iron_02.png?width=256&height=256&format=webp&v=c83cb6ae",
+      "url": "https://polyhaven.com/a/corrugated_iron_02",
+      "maps": {
+        "aoMap": {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/corrugated_iron_02/corrugated_iron_02_ao_1k.jpg",
+          "path": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/corrugated_iron_02/corrugated_iron_02_ao_1k.jpg"
+        },
+        "arm": {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/corrugated_iron_02/corrugated_iron_02_arm_1k.jpg",
+          "path": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/corrugated_iron_02/corrugated_iron_02_arm_1k.jpg"
+        },
+        "map": {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/corrugated_iron_02/corrugated_iron_02_diff_1k.jpg",
+          "path": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/corrugated_iron_02/corrugated_iron_02_diff_1k.jpg"
+        },
+        "metalnessMap": {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/corrugated_iron_02/corrugated_iron_02_metal_1k.jpg",
+          "path": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/corrugated_iron_02/corrugated_iron_02_metal_1k.jpg"
+        },
+        "normalMap": {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/corrugated_iron_02/corrugated_iron_02_nor_gl_1k.jpg",
+          "path": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/corrugated_iron_02/corrugated_iron_02_nor_gl_1k.jpg"
+        },
+        "roughnessMap": {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/corrugated_iron_02/corrugated_iron_02_rough_1k.jpg",
+          "path": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/corrugated_iron_02/corrugated_iron_02_rough_1k.jpg"
+        }
+      }
+    },
+    {
+      "id": "ph:asphalt_track",
+      "label": "Asphalt Track",
+      "source": "polyhaven",
+      "scale": 2,
+      "normalDX": false,
+      "tags": [
+        "asphalt",
+        "track",
+        "asphalt",
+        "track",
+        "asphalt",
+        "track",
+        "asphalt",
+        "racing",
+        "road",
+        "speedway",
+        "asphalt",
+        "road",
+        "race",
+        "track",
+        "tarmac",
+        "road",
+        "asphalt",
+        "bitumen",
+        "tracks",
+        "race",
+        "tracks"
+      ],
+      "thumb": "https://cdn.polyhaven.com/asset_img/thumbs/asphalt_track.png?width=256&height=256&format=webp&v=fa9c2107",
+      "url": "https://polyhaven.com/a/asphalt_track",
+      "maps": {
+        "map": {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/asphalt_track/asphalt_track_diff_1k.jpg",
+          "path": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/asphalt_track/asphalt_track_diff_1k.jpg"
+        },
+        "normalMap": {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/asphalt_track/asphalt_track_nor_gl_1k.jpg",
+          "path": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/asphalt_track/asphalt_track_nor_gl_1k.jpg"
+        },
+        "arm": {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/asphalt_track/asphalt_track_arm_1k.jpg",
+          "path": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/asphalt_track/asphalt_track_arm_1k.jpg"
+        },
+        "aoMap": {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/asphalt_track/asphalt_track_ao_1k.jpg",
+          "path": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/asphalt_track/asphalt_track_ao_1k.jpg"
+        },
+        "roughnessMap": {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/asphalt_track/asphalt_track_rough_1k.jpg",
+          "path": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/asphalt_track/asphalt_track_rough_1k.jpg"
+        }
+      }
+    },
+    {
+      "id": "ph:white_sandstone_bricks_03",
+      "label": "White Sandstone Bricks 03",
+      "source": "polyhaven",
+      "scale": 2,
+      "normalDX": false,
+      "tags": [
+        "white",
+        "sandstone",
+        "bricks",
+        "03",
+        "white",
+        "sandstone",
+        "bricks",
+        "03",
+        "brick",
+        "man",
+        "made",
+        "outdoor",
+        "wall",
+        "clean",
+        "blocks",
+        "white",
+        "standstone",
+        "uneven",
+        "brick",
+        "block",
+        "stone",
+        "block",
+        "paver",
+        "sandstone",
+        "brick",
+        "block"
+      ],
+      "thumb": "https://cdn.polyhaven.com/asset_img/thumbs/white_sandstone_bricks_03.png?width=256&height=256&format=webp&v=f97c27de",
+      "url": "https://polyhaven.com/a/white_sandstone_bricks_03",
+      "maps": {
+        "map": {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/white_sandstone_bricks_03/white_sandstone_bricks_03_diff_1k.jpg",
+          "path": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/white_sandstone_bricks_03/white_sandstone_bricks_03_diff_1k.jpg"
+        },
+        "normalMap": {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/white_sandstone_bricks_03/white_sandstone_bricks_03_nor_gl_1k.jpg",
+          "path": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/white_sandstone_bricks_03/white_sandstone_bricks_03_nor_gl_1k.jpg"
+        },
+        "arm": {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/white_sandstone_bricks_03/white_sandstone_bricks_03_arm_1k.jpg",
+          "path": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/white_sandstone_bricks_03/white_sandstone_bricks_03_arm_1k.jpg"
+        },
+        "aoMap": {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/white_sandstone_bricks_03/white_sandstone_bricks_03_ao_1k.jpg",
+          "path": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/white_sandstone_bricks_03/white_sandstone_bricks_03_ao_1k.jpg"
+        },
+        "roughnessMap": {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/white_sandstone_bricks_03/white_sandstone_bricks_03_rough_1k.jpg",
+          "path": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/white_sandstone_bricks_03/white_sandstone_bricks_03_rough_1k.jpg"
+        }
+      }
+    },
+    {
+      "id": "ph:rocks_ground_02",
+      "label": "Rocks Ground 02",
+      "source": "polyhaven",
+      "scale": 2,
+      "normalDX": false,
+      "tags": [
+        "rocks",
+        "ground",
+        "02",
+        "rocks",
+        "ground",
+        "02",
+        "terrain",
+        "natural",
+        "outdoor",
+        "rock",
+        "rough",
+        "mud",
+        "rock",
+        "stones",
+        "uneven",
+        "rocks",
+        "scattered",
+        "rocks",
+        "gravel",
+        "dirt",
+        "exposed",
+        "rock",
+        "earthy",
+        "soil",
+        "ground",
+        "terrain",
+        "rocky",
+        "ground"
+      ],
+      "thumb": "https://cdn.polyhaven.com/asset_img/thumbs/rocks_ground_02.png?width=256&height=256&format=webp&v=d51fafd1",
+      "url": "https://polyhaven.com/a/rocks_ground_02",
+      "maps": {
+        "map": {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/rocks_ground_02/rocks_ground_02_col_1k.jpg",
+          "path": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/rocks_ground_02/rocks_ground_02_col_1k.jpg"
+        },
+        "normalMap": {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/rocks_ground_02/rocks_ground_02_nor_gl_1k.jpg",
+          "path": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/rocks_ground_02/rocks_ground_02_nor_gl_1k.jpg"
+        },
+        "arm": {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/rocks_ground_02/rocks_ground_02_arm_1k.jpg",
+          "path": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/rocks_ground_02/rocks_ground_02_arm_1k.jpg"
+        },
+        "aoMap": {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/rocks_ground_02/rocks_ground_02_ao_1k.jpg",
+          "path": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/rocks_ground_02/rocks_ground_02_ao_1k.jpg"
+        },
+        "roughnessMap": {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/rocks_ground_02/rocks_ground_02_rough_1k.jpg",
+          "path": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/rocks_ground_02/rocks_ground_02_rough_1k.jpg"
+        }
+      }
+    },
+    {
+      "id": "ph:marble_01",
+      "label": "Marble 01",
+      "source": "polyhaven",
+      "scale": 1.5,
+      "normalDX": false,
+      "tags": [
+        "marble",
+        "01",
+        "marble",
+        "01",
+        "floor",
+        "man",
+        "made",
+        "indoor",
+        "clean",
+        "wall",
+        "marble",
+        "smooth",
+        "even",
+        "tiles",
+        "stone",
+        "slabs",
+        "tiles",
+        "marble"
+      ],
+      "thumb": "https://cdn.polyhaven.com/asset_img/thumbs/marble_01.png?width=256&height=256&format=webp&v=57534022",
+      "url": "https://polyhaven.com/a/marble_01",
+      "maps": {
+        "map": {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/marble_01/marble_01_diff_1k.jpg",
+          "path": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/marble_01/marble_01_diff_1k.jpg"
+        },
+        "normalMap": {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/marble_01/marble_01_nor_gl_1k.jpg",
+          "path": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/marble_01/marble_01_nor_gl_1k.jpg"
+        },
+        "arm": {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/marble_01/marble_01_arm_1k.jpg",
+          "path": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/marble_01/marble_01_arm_1k.jpg"
+        },
+        "aoMap": {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/marble_01/marble_01_ao_1k.jpg",
+          "path": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/marble_01/marble_01_ao_1k.jpg"
+        },
+        "roughnessMap": {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/marble_01/marble_01_rough_1k.jpg",
+          "path": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/marble_01/marble_01_rough_1k.jpg"
+        }
+      }
+    }
+  ]
+}
