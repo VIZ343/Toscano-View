@@ -423,7 +423,7 @@ h1{margin:8px 0 10px;font-family:var(--display);font-weight:400;font-size:32px;f
     <div class="estado-modelo" id="estadoModelo" role="status" hidden></div>
       <a class="credito" id="credito" href="https://polyhaven.com" target="_blank" rel="noopener" hidden>Powered by Poly Haven</a>
     <!-- DEV:START — Material Lab: panel de desarrollo (se elimina por completo en la versión final) -->
-    <aside class="dv" id="dvPanel" data-dev aria-label="Material Lab (desarrollo)">
+    <aside class="dv min" id="dvPanel" data-dev aria-label="Material Lab (desarrollo)">
       <header>
         <button class="dv-min" id="dvMin" type="button" aria-label="Mostrar u ocultar Material Lab" title="Material Lab" aria-expanded="false"><svg viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg></button>
         <h2>Material Lab <em>DEV</em></h2>
@@ -435,7 +435,6 @@ h1{margin:8px 0 10px;font-family:var(--display);font-weight:400;font-size:32px;f
         <div class="dv-actions">
           <label class="dv-btn dv-primary">Cargar GLB<input type="file" id="dvGlb" accept=".glb,.json" multiple hidden></label>
           <button class="dv-btn" id="dvDemo" type="button">Escena de prueba · FRIOX</button>
-          <input type="file" id="dvFriox" accept=".glb" hidden>
           <button class="dv-btn" id="dvBase" type="button">Modelo base</button>
         </div>
         <div class="dv-web">
@@ -477,17 +476,17 @@ h1{margin:8px 0 10px;font-family:var(--display);font-weight:400;font-size:32px;f
 <script>
 /* ===== CONFIGURACIÓN ===== */
 /* true: Material Lab (cargar GLB, arrastrar y soltar, carpeta local, Poly Haven, exportar mapeo). false: versión compartida, carga solo el modelo base. */
-const DEV_MODE = false;
+const DEV_MODE = true;
 /* DEV:START */
-/* Con DEV_MODE = true: al abrir, carga solo la escena de prueba FRIOX si ya está guardada en el navegador o junto a la página. */
-const DEV_AUTOCARGAR_FRIOX = true;
+/* Precarga FRIOX en memoria sin activar su escena: Modelo base siempre se muestra primero. */
+const DEV_PRECARGAR_FRIOX = true;
 /* DEV:END */
 /* Mapeo de materiales del modelo base. null: busca «<MODELO_NOMBRE>.materials.json» junto a la página; o pega aquí el JSON exportado para que viaje dentro del archivo. */
 const MAPEO_INCRUSTADO = null;
 const MODELO_NOMBRE = 'corporativo-toscano';
 /* Modelo que se muestra al abrir la página (se descarga de esta URL o ruta relativa, junto al HTML). '' = solo el modelo base.
    Si la descarga falla se queda el modelo base. Con el modelo cargado se ven solo «Conjunto» e «Iluminación». */
-const MODELO_URL = 'FRIOX_ligero.glb';
+const MODELO_URL = '';
 const MODELO_TITULO = 'FRIOX';                 // título que reemplaza al del modelo base mientras se muestra el modelo externo
 const MODELO_OCULTA_PRESUPUESTO = true;        // el presupuesto pertenece al modelo base: se oculta con el modelo externo
 /* ================= MATERIAL MAPPER (portado de material-mapper.js a three r128, THREE global) ================= */
@@ -2214,13 +2213,22 @@ function iniciar3D(){
         out.set(new Uint8Array(buf,0,12),0);o.setUint32(8,out.length,true);o.setUint32(12,nb.length,true);o.setUint32(16,0x4E4F534A,true);
         out.set(nb,20);out.set(new Uint8Array(buf,20+jl,resto),20+nb.length);return out.buffer;
       }catch(e){if(window.console)console.warn(e);return buf;}}
-    async function abrirGLB(buf,nom,json,opts){
-      const L=await cargador();aviso('Procesando '+nom+' ('+Math.round(buf.byteLength/1048576)+' MB)…');
-      await new Promise((ok,ko)=>L.parse(sanearGLB(buf),'',g=>{try{
-        /* este GLB solo trae TEXCOORD_1 (three r128 lo llama uv2): se usa como uv para que las texturas originales y el mapeo funcionen */
+    // Decodifica el GLB sin agregarlo a scene; permite prepararlo en segundo plano.
+    async function parsearGLB(buf){
+      const L=await cargador();
+      return await new Promise((ok,ko)=>L.parse(sanearGLB(buf),'',g=>{try{
+        // El GLB de FRIOX utiliza TEXCOORD_1 para texturas; se expone tambien como uv.
         g.scene.traverse(o=>{if(o.isMesh&&o.geometry&&!o.geometry.attributes.uv&&o.geometry.attributes.uv2)o.geometry.setAttribute('uv',o.geometry.attributes.uv2);});
-        ponerModelo(g.scene,nom,json,opts);ok();}catch(e){ko(e);}},ko));
-      const r=mapa.report();aviso(r.sourceMaterials+' materiales → '+mapa.entries.length+' grupos'+(json?' · mapeo aplicado':''));}
+        ok(g.scene);
+      }catch(e){ko(e);}},ko));
+    }
+    async function abrirGLB(buf,nom,json,opts){
+      aviso('Procesando '+nom+' ('+Math.round(buf.byteLength/1048576)+' MB)...');
+      const obj=await parsearGLB(buf);
+      ponerModelo(obj,nom,json,opts);
+      const r=mapa.report();aviso(r.sourceMaterials+' materiales -> '+mapa.entries.length+' grupos'+(json?' - mapeo aplicado':''));
+      return obj;
+    }
 
   /* ---- modelo público: se descarga al abrir la página ---- */
   async function descargarConProgreso(url,onProg){
@@ -2249,23 +2257,47 @@ function iniciar3D(){
     const web={profile:'oficinas',tone:'neutro',res:'1k',candidates:{},searched:false};
     aviso=m=>{const t=Q('#dvToast');t.textContent=m;t.classList.add('show');clearTimeout(t._h);t._h=setTimeout(()=>t.classList.remove('show'),3200);};
     const bajar=(obj,n)=>{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(obj,null,2)],{type:'application/json'}));a.download=n;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000);};
-    /* memoria del navegador: el GLB de prueba se guarda una vez y se vuelve a cargar solo */
-    const idb={abrir(){return new Promise((ok,ko)=>{const r=indexedDB.open('toscano-dev',1);r.onupgradeneeded=()=>r.result.createObjectStore('glb');r.onsuccess=()=>ok(r.result);r.onerror=()=>ko(r.error);});},
-      async leer(k){const d=await this.abrir();return new Promise((ok,ko)=>{const q=d.transaction('glb').objectStore('glb').get(k);q.onsuccess=()=>ok(q.result);q.onerror=()=>ko(q.error);});},
-      async guardar(k,v){const d=await this.abrir();return new Promise((ok,ko)=>{const q=d.transaction('glb','readwrite').objectStore('glb').put(v,k);q.onsuccess=()=>ok();q.onerror=()=>ko(q.error);});}};
-    const FRIOX='FRIOX_Optimizado_Max.glb';
-    async function cargarFriox(auto){
+    /* FRIOX existe en la misma carpeta que index.html.
+       Al inicio se DESCARGA Y DECODIFICA silenciosamente, pero no se agrega a scene.
+       La escena inicial sigue siendo Modelo base, hasta seleccionar Escena de prueba. */
+    const FRIOX='FRIOX_ligero.glb';
+    let escenaFriox=null,mapeoFriox=null,promesaFriox=null,versionSeleccion=0;
+    async function precargarFriox(){
+      if(promesaFriox)return promesaFriox;
+      Q('#dvDemo').title='Preparando FRIOX en segundo plano';
+      promesaFriox=(async()=>{
+        const r=await fetch(FRIOX,{cache:'default'});
+        if(!r.ok)throw new Error('No se pudo descargar '+FRIOX+' (HTTP '+r.status+')');
+        const buf=await r.arrayBuffer();
+        const [obj,json]=await Promise.all([parsearGLB(buf),mapeoExterno('FRIOX_ligero')]);
+        escenaFriox=obj;mapeoFriox=json;
+        Q('#dvDemo').dataset.ready='true';
+        Q('#dvDemo').title='FRIOX cargado: pulsa para cambiar desde Modelo base';
+        return obj;
+      })().catch(err=>{
+        promesaFriox=null;
+        Q('#dvDemo').dataset.ready='false';
+        Q('#dvDemo').title='No se pudo preparar FRIOX: pulsa para reintentar';
+        throw err;
+      });
+      return promesaFriox;
+    }
+    async function cargarFriox(){
+      const token=++versionSeleccion;
+      if(escenaFriox&&modeloExt&&nivel===escenaFriox){aviso('FRIOX ya esta activo');return;}
+      if(!escenaFriox)aviso('Preparando FRIOX. El Modelo base permanece visible...');
       try{
-        let buf=null;
-        try{buf=await idb.leer(FRIOX);}catch(e){}
-        if(!buf){try{const r=await fetch(FRIOX);if(r.ok){buf=await r.arrayBuffer();try{await idb.guardar(FRIOX,buf);}catch(e){}}}catch(e){}}
-        if(!buf){if(auto)aviso('Pulsa «Escena de prueba · FRIOX» y elige el GLB una vez; quedará guardado en este navegador');else Q('#dvFriox').click();return;}
-        aviso('Cargando FRIOX…');await abrirGLB(buf,FRIOX,await mapeoExterno('FRIOX_Optimizado_Max'));
-      }catch(err){if(window.console)console.error(err);aviso('No se pudo cargar FRIOX ('+(err.message||err)+'). Se mantiene el modelo base.');}}
-    Q('#dvFriox').addEventListener('change',async e=>{const f=e.target.files[0];e.target.value='';if(!f)return;
-      try{const buf=await f.arrayBuffer();try{await idb.guardar(FRIOX,buf);}catch(x){aviso('No se pudo guardar en el navegador; tendrás que elegirlo cada vez');}
-        await abrirGLB(buf,FRIOX,await mapeoExterno('FRIOX_Optimizado_Max'));}catch(err){if(window.console)console.error(err);aviso('No se pudo cargar FRIOX ('+(err.message||err)+')');}});
+        await precargarFriox();
+        if(token!==versionSeleccion)return; // el usuario ya eligio Modelo base u otro GLB
+        ponerModelo(escenaFriox,FRIOX,mapeoFriox);
+        aviso('Escena de prueba FRIOX activa');
+      }catch(err){
+        if(window.console)console.error('FRIOX:',err);
+        aviso('No se pudo cargar FRIOX desde esta pagina: '+(err.message||err));
+      }
+    }
     async function cargarArchivos(lista){
+      ++versionSeleccion; // cancela una seleccion pendiente de FRIOX
       const arr=[].slice.call(lista),glb=arr.find(f=>/\.glb$/i.test(f.name)),js=arr.find(f=>/\.json$/i.test(f.name));
       if(!glb){if(js){try{aplicarJsonMapeo(JSON.parse(await js.text()));aplicarMapa();refrescarPanel();aviso('Mapeo importado');}catch(e){aviso('El JSON no es válido');}}else aviso('Arrastra un archivo .glb');return;}
       aviso('Cargando '+glb.name+'…');
@@ -2280,8 +2312,8 @@ function iniciar3D(){
     stage.addEventListener('dragover',e=>{e.preventDefault();stage.classList.add('dragging');});
     stage.addEventListener('dragleave',()=>stage.classList.remove('dragging'));
     stage.addEventListener('drop',e=>{e.preventDefault();stage.classList.remove('dragging');cargarArchivos(e.dataTransfer.files);});
-    Q('#dvBase').addEventListener('click',()=>{if(modeloExt)ponerBase();else aviso('Ya estás en el modelo base');});
-    Q('#dvDemo').addEventListener('click',()=>cargarFriox(false));
+    Q('#dvBase').addEventListener('click',()=>{++versionSeleccion;if(modeloExt)ponerBase();else aviso('Ya estas en el modelo base');});
+    Q('#dvDemo').addEventListener('click',cargarFriox);
     Q('#dvAnti').addEventListener('change',e=>{MM.setAntiTile(e.target.value);if(e.target.value==='inf'&&!MM.CFG.webgl2)aviso('Este dispositivo no admite el modo infinito (requiere WebGL2)');ejecutar();});
     function escenaPrueba(){
       const g=new THREE.Group();g.name='Demo';
@@ -2394,7 +2426,12 @@ function iniciar3D(){
     devRefrescar=refrescarPanel;devAlCargar=()=>{web.candidates={};web.searched=false;};
     mapa.analyze(raicesBase);refrescarPanel();
     window.__dev={mapa,MM,ponerModelo,escenaPrueba,ejecutar,ponerBase};
-    if(DEV_AUTOCARGAR_FRIOX&&!MODELO_URL)cargarFriox(true);
+    // Deja que se pinte primero Modelo base; precarga FRIOX sin mostrarlo.
+    if(DEV_PRECARGAR_FRIOX&&!MODELO_URL){
+      requestAnimationFrame(()=>setTimeout(()=>precargarFriox().catch(err=>{
+        if(window.console)console.warn('FRIOX no disponible para precarga:',err);
+      }),100));
+    }
   }
   /* DEV:END */
 
