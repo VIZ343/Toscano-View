@@ -153,12 +153,15 @@ function parseName(raw) {
 /* ---------------------------------------------------------------
    3. INVENTARIO: agrupa por material de origen
 ---------------------------------------------------------------- */
+const ORIGINALS = new WeakMap();
 function inventory(root) {
   const byName = new Map();
   [].concat(root).forEach(r0 => r0.traverse(o => {
     if (!o.isMesh) return;
     const meta = readMeta(o, true);                    // metadatos del objeto y sus padres
-    const mats = Array.isArray(o.material) ? o.material : [o.material];
+    // materiales originales de la pieza (si el mapper ya le asignó otros, se analizan los de origen)
+    let mats = ORIGINALS.get(o);
+    if (!mats) ORIGINALS.set(o, mats = Array.isArray(o.material) ? o.material.slice() : [o.material]);
     mats.forEach((m, slot) => {
       const mMeta = readMeta(m || {}, false);          // extras del material glTF
       const raw = pick(mMeta, META_MATERIAL)
@@ -541,6 +544,48 @@ const CATEGORY_GROUPS = [
   ['Sitio', ['topography', 'toposolid', 'site', 'planting', 'entourage', 'parking', 'topografia', 'vialidades', 'sitio']],
 ];
 const GROUP_ORDER = CATEGORY_GROUPS.map(g => g[0]).concat('Otros');
+
+/* ---------------------------------------------------------------
+   PALETA NEUTRA POR ROL (maqueta limpia para slots sin referencia)
+---------------------------------------------------------------- */
+const DEFAULT_PALETTE = { principal: '#F2F1EE', secundario: '#8E8E8C', variacion: '#B98B5E' };
+const ROLES = ['principal', 'secundario', 'variacion'];
+const ROLE_BY_GROUP = {
+  Muros: 'principal', Plafones: 'principal',
+  Pisos: 'secundario', Cubiertas: 'secundario', Ventanas: 'secundario', Puertas: 'secundario', Estructura: 'secundario', Barandales: 'secundario',
+  Mobiliario: 'variacion', Instalaciones: 'variacion', Sitio: 'variacion',
+};
+const ROLE_BY_RULE = { aplanado: 'principal', metal: 'secundario', concreto: 'secundario', asfalto: 'secundario', cubierta: 'secundario' };
+function autoRole(e) {
+  if (ROLE_BY_GROUP[e.group]) return ROLE_BY_GROUP[e.group];
+  return ROLE_BY_RULE[e.match?.rule?.id] || 'variacion';
+}
+
+/* Área en m² de las caras de una pieza que usan el material «slot» (suma de triángulos, escala del mundo) */
+const areaCache = new WeakMap();
+const _a = new THREE.Vector3(), _b = new THREE.Vector3(), _c = new THREE.Vector3(), _ws = new THREE.Vector3();
+function localArea(g, start, count) {
+  const P = g.attributes.position, I = g.index; let area = 0;
+  const end = Math.min(start + count, I ? I.count : P.count);
+  for (let i = start; i + 2 < end; i += 3) {
+    const ia = I ? I.getX(i) : i, ib = I ? I.getX(i + 1) : i + 1, ic = I ? I.getX(i + 2) : i + 2;
+    _a.fromBufferAttribute(P, ia); _b.fromBufferAttribute(P, ib); _c.fromBufferAttribute(P, ic);
+    area += _b.sub(_a).cross(_c.sub(_a)).length() / 2;
+  }
+  return area;
+}
+function meshArea(mesh, slot) {
+  const g = mesh.geometry; if (!g || !g.attributes || !g.attributes.position) return 0;
+  let c = areaCache.get(g); if (!c) areaCache.set(g, c = {});
+  if (c[slot] == null) {
+    const total = g.index ? g.index.count : g.attributes.position.count;
+    c[slot] = Array.isArray(mesh.material) && g.groups.length
+      ? g.groups.filter(q => q.materialIndex === slot).reduce((n, q) => n + localArea(g, q.start, q.count), 0)
+      : localArea(g, 0, total);
+  }
+  mesh.updateWorldMatrix(true, false); mesh.getWorldScale(_ws);
+  return c[slot] * Math.pow(Math.abs(_ws.x * _ws.y * _ws.z), 2 / 3) * (mesh.isInstancedMesh ? mesh.count : 1);
+}
 function categoryGroup(entry) {
   for (const c of entry.categories || []) {
     const n = norm(c);
@@ -581,6 +626,7 @@ class MaterialMapper {
     this.ruleTint = {};       // { [ruleId]: '#rrggbb' } tono por perfil
     this.slots = {};          // ver arriba
     this.sets = {};
+    this.palette = { ...DEFAULT_PALETTE };   // colores por rol para slots sin referencia
     this.sampleBase = '';     // prefijo para resolver «samples/…» (la versión para compartir los carga junto a la página)
     this.sampleUrls = {};     // { 'samples/x.jpg': url } registradas por el laboratorio (IndexedDB)
     this.entries = [];
@@ -626,6 +672,15 @@ class MaterialMapper {
       }
       if (!list.includes(e.name)) list.push(e.name);
     }
+    // área por slot (m²) y rol automático: muros y plafones principales, estructura y carpinterías secundarias,
+    // el resto variación; el slot con mayor área total también es principal
+    let mayor = null;
+    for (const e of this.entries) {
+      e.area = e.uses.reduce((n, u) => n + meshArea(u.mesh, u.slot), 0);
+      e.autoRole = autoRole(e);
+      if (!isColorOnly(e.match.rule) && (!mayor || e.area > mayor.area)) mayor = e;
+    }
+    if (mayor) mayor.autoRole = 'principal';
     this._ensureSlots();
     return this.entries;
   }
@@ -645,7 +700,25 @@ class MaterialMapper {
   }
 
   /* Limpia slots, conjuntos y elecciones al cambiar de modelo */
-  resetState() { this.slots = {}; this.sets = {}; this.ruleTex = {}; this.ruleTint = {}; }
+  resetState() { this.slots = {}; this.sets = {}; this.ruleTex = {}; this.ruleTint = {}; this.palette = { ...DEFAULT_PALETTE }; }
+
+  /** Rol del slot: el elegido a mano o el automático. @returns {'principal'|'secundario'|'variacion'} */
+  roleOf(slotId) { const s = this.slots[slotId]; return (s && ROLES.includes(s.role) && s.role) || this.byName?.get(slotId)?.autoRole || 'variacion'; }
+  /** Cambia el rol de un slot (null = automático) y lo aplica. */
+  setRole(slotId, role) {
+    const s = this.slots[slotId]; if (!s) return false;
+    s.role = ROLES.includes(role) ? role : null; this.applySlots(slotId); return true;
+  }
+  /** Cambia colores de la paleta neutra ({ principal, secundario, variacion }) y vuelve a aplicar. */
+  setPalette(p = {}) {
+    for (const k of ROLES) if (/^#[0-9a-f]{6}$/i.test(p[k] || '')) this.palette[k] = p[k].toUpperCase();
+    this.apply();
+  }
+  /* Color de paleta en vivo (selector arrastrándose): cambia el color de los materiales neutros del rol sin recrearlos */
+  previewPalette(role, hex) {
+    if (!ROLES.includes(role)) return;
+    for (const e of this.entries) if (e.mat && e.result?.color && this.roleOf(e.name) === role) e.mat.color.set(hex);
+  }
 
   setLibrary(library) { this.library = library; this.clearCache(); }
   setRules(rules) { this.rules = rules; this.clearCache(); if (this.root) this.analyze(this.root); }
@@ -680,7 +753,9 @@ class MaterialMapper {
     const baseScale = (tex && tex.scale) || rule?.scale || 1;          // metros por repetición (real)
     const tint = v.tint || (tex && rule && tex.source !== 'sample' ? this.ruleTint[rule.id] : null) || null;   // el tono del perfil no tiñe fotos
     const source = variantIsManual(v) ? 'manual' : rule ? 'auto' : 'none';
-    return { rule, tex, tint, color: null, scale, baseScale, meters: baseScale * scale, rep: 1 / (baseScale * scale),
+    // sin muestra, sin textura y sin referencia de color: color neutro según el rol (maqueta limpia)
+    const color = !tex && !tint && !colorOnly && !keepOriginal ? this.palette[this.roleOf(e.name)] : null;
+    return { rule, tex, tint, color, role: this.roleOf(e.name), scale, baseScale, meters: baseScale * scale, rep: 1 / (baseScale * scale),
       randomUV: !!v.randomUV, sampleMode, keepOriginal, colorOnly, source };
   }
   _key(r) {
@@ -727,6 +802,11 @@ class MaterialMapper {
   apply(accept) {
     if (accept !== undefined) this.accept = accept || null;
     for (const e of this.entries) this._applyEntry(e);
+    // tras una aplicación completa se liberan los materiales que ya no usa ningún slot
+    // (los cambios de variante usan applySlots y conservan el caché para volver atrás sin recrear)
+    const used = new Set(this.entries.map(e => e.mat).filter(Boolean));
+    for (const [k, mat] of this.cache) if (!used.has(mat)) { this.cache.delete(k); mat.dispose(); }
+    this._gc();
     return this.report();
   }
   /* Vuelve a aplicar solo algunos slots (cambios en vivo) */
@@ -822,7 +902,7 @@ class MaterialMapper {
     }
     Object.values(this.ruleTex).forEach(take);
     return {
-      version: 2, model, uvMode: this.uvMode, antiTile: CFG.mode,
+      version: 2, model, uvMode: this.uvMode, antiTile: CFG.mode, palette: { ...this.palette },
       ruleTint: { ...this.ruleTint },
       ruleTex: Object.fromEntries(Object.entries(this.ruleTex).map(([r, t]) => [r, t ? t.id : null])),
       textures: [...used.values()].map(t => ({ id: t.id, label: t.label, source: t.source || 'local', scale: t.scale ?? null,
@@ -851,6 +931,8 @@ class MaterialMapper {
           variants: Object.fromEntries(Object.entries(s.variants).map(([vid, v]) => [vid, cleanVariant(v)])) };
       }
       this.sets = deep(json.sets || {});
+      this.palette = { ...DEFAULT_PALETTE };
+      for (const k of ROLES) if (/^#[0-9a-f]{6}$/i.test(json.palette?.[k] || '')) this.palette[k] = json.palette[k];
     } else {
       for (const [name, a] of Object.entries(json.assignments || {})) {
         const o = a && a.override; if (!o) continue;
@@ -1148,7 +1230,7 @@ function searchTextures(catalog, profileId, ruleId, limit = 6) {
 /* DEV:END */
 
 const API = { MaterialMapper, DEFAULT_RULES, resolveTexture, norm, CFG, setAntiTile, HOOKS: MM_HOOKS, GROUP_ORDER,
-  isColorOnly, variantIsManual, polyHavenTexture, dominantColor };
+  isColorOnly, variantIsManual, polyHavenTexture, dominantColor, DEFAULT_PALETTE, ROLES };
 /* DEV:START */
 Object.assign(API, { PROFILES, TONES, profileTint, libraryFromFiles, libraryFromManifest, exportManifest, loadPolyHavenCatalog, searchTextures });
 /* DEV:END */

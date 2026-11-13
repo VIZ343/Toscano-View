@@ -117,7 +117,7 @@ function init(ctx) {
   const nombreCorto = e => String(e.material || e.name).replace(/_+/g, ' ').trim();
   const detalleCorto = e => [...(e.categories || [])][0] + (e.match.conflict ? ' · familia ' + e.match.conflict.label.toLowerCase() : '');
 
-  function refrescarPanel() { Q('#dvModelo').textContent = ctx.nombre + (ctx.modeloExt ? '' : ' · los materiales ligados al presupuesto están protegidos'); render(); renderPaleta(); }
+  function refrescarPanel() { Q('#dvModelo').textContent = ctx.nombre + (ctx.modeloExt ? '' : ' · los materiales ligados al presupuesto están protegidos'); render(); renderPaleta(); renderPal(); }
   function render() { renderStats(); renderMaster(); renderDetalle(); }
   function renderStats() {
     const rep = mapa.report(), cuenta = { all: rep.total, auto: 0, manual: 0, review: 0, none: 0 };
@@ -168,7 +168,7 @@ function init(ctx) {
     const s = mapa.slots[e.name], r = e.result || {};
     Q('#dvDThumb').setAttribute('style', miniatura(e));
     Q('#dvDNombre').textContent = nombreCorto(e);
-    Q('#dvDMeta').textContent = e.uses.length.toLocaleString() + ' pieza' + (e.uses.length > 1 ? 's' : '') + ' · ' + detalleCorto(e) + ' · ' + (r.rule ? r.rule.label : 'sin regla') + ' · variante «' + (s.variants[s.active].name || s.active) + '»';
+    Q('#dvDMeta').textContent = e.uses.length.toLocaleString() + ' pieza' + (e.uses.length > 1 ? 's' : '') + ' · ' + m2(e.area) + ' · ' + detalleCorto(e) + ' · ' + (r.rule ? r.rule.label : 'sin regla') + ' · variante «' + (s.variants[s.active].name || s.active) + '»';
     const partes = Q('#dvPartes');
     if (ui.elem && ui.elem.slots.length > 1) {
       partes.hidden = false;
@@ -244,6 +244,12 @@ function init(ctx) {
         '<button type="button" class="dv-switch" role="switch" data-f="randomUV" aria-checked="' + !!v.randomUV + '" aria-label="UV aleatorias"' + (lock || !conTex ? ' disabled' : '') + '></button></div></div>';
       h += '<div class="dv-field"><div class="dv-lbl">Tinte' + (v.tint ? '' : ' <b>heredado</b>') + '</div><div class="dv-color"><input type="color" data-f="tint" value="' + esc(col) + '"' + dis + '><code>' + esc(col.toUpperCase()) + '</code>' +
         (v.tint ? '<button type="button" class="dv-btn" data-accion="sin-tinte"' + dis + '>Quitar</button>' : '') + '</div></div>';
+      const rol = mapa.roleOf(e.name), ri = MM.ROLES.indexOf(rol);
+      h += '<div class="dv-field"><div class="dv-lbl">Rol en la paleta neutra <b>' + (s.role ? 'manual' : 'automático') + '</b></div>' +
+        '<div class="dv-seg tres" role="tablist"><span class="pill" aria-hidden="true" style="transform:translateX(' + (ri * 100) + '%)"></span>' +
+        MM.ROLES.map(k => '<button type="button" role="tab" data-rol="' + k + '" aria-selected="' + (k === rol) + '"' + dis + '>' + ROL_TXT[k] + '</button>').join('') + '</div>' +
+        '<p class="dv-note" style="margin:6px 0 0">' + (r.color ? 'Sin muestra, textura ni referencia: se ve en ' + ROL_TXT[rol].toLowerCase() + ' <span class="dv-sw" style="background:' + esc(r.color) + '"></span>' + esc(r.color) + '.' : 'Tiene referencia propia; el rol aplica cuando no la tenga.') +
+        ' Área: ' + m2(e.area) + '.' + (s.role ? ' <button type="button" class="dv-btn" data-accion="rol-auto" style="height:24px;margin-left:4px"' + dis + '>Usar automático (' + ROL_TXT[e.autoRole] + ')</button>' : '') + '</p></div>';
       return h;
     },
     variantes: (e, s, r, lock) => {
@@ -257,6 +263,19 @@ function init(ctx) {
         '<div class="dv-row-actions"><button type="button" class="dv-btn" data-accion="duplicar"' + dis + '>Duplicar activa</button><button type="button" class="dv-btn" data-accion="nueva"' + dis + '>Nueva automática</button></div>';
     },
   };
+
+  const ROL_TXT = { principal: 'Principal', secundario: 'Secundario', variacion: 'Variación' };
+  const ROL_DESC = { principal: 'Muros, plafones y el slot de mayor área', secundario: 'Estructura, carpinterías, metales y pisos', variacion: 'Mobiliario, detalles y elementos menores' };
+  const m2 = a => (a >= 100 ? Math.round(a).toLocaleString() : (a || 0).toFixed(1)) + ' m²';
+  function renderPal() {
+    const tot = { principal: [0, 0], secundario: [0, 0], variacion: [0, 0] };
+    mapa.entries.forEach(e => { if (e.result && e.result.color) { const t = tot[mapa.roleOf(e.name)]; t[0]++; t[1] += e.area || 0; } });
+    Q('#dvPal').innerHTML = MM.ROLES.map(k => '<label class="dv-palrol" title="' + ROL_DESC[k] + '"><input type="color" data-rol="' + k + '" value="' + esc(mapa.palette[k].toLowerCase()) + '" aria-label="Color ' + ROL_TXT[k] + '">' +
+      '<i style="background:' + esc(mapa.palette[k]) + '"></i><b>' + ROL_TXT[k] + '</b><small>' + tot[k][0] + ' slot' + (tot[k][0] === 1 ? '' : 's') + ' · ' + m2(tot[k][1]) + '</small></label>').join('') +
+      '<p class="dv-pal-nota">Paleta neutra: color de los slots sin muestra, sin textura y sin referencia. Se guarda en el mapeo.</p>';
+  }
+  Q('#dvPal').addEventListener('input', ev => { const t = ev.target; if (!t.dataset.rol) return; mapa.previewPalette(t.dataset.rol, t.value); t.nextElementSibling.style.background = t.value; ctx.redibujar(); });
+  Q('#dvPal').addEventListener('change', ev => { const t = ev.target; if (!t.dataset.rol) return; mapa.setPalette({ [t.dataset.rol]: t.value }); ctx.redibujar(); renderPal(); renderMaster(); renderDetalle(); renderStats(); });
 
   /* Escala: slider logarítmico −1000…1000 ↔ 0.25×…4× (1× al centro) */
   const sliderAEscala = t => Math.pow(4, t / 1000);
@@ -279,8 +298,8 @@ function init(ctx) {
 
   /* edición: todo cambia la variante activa del slot */
   const editar = patch => { const e = entrada(ui.sel); if (!e) return; mapa.updateVariant(e.name, mapa.slots[e.name].active, patch); actualizado(); };
-  function actualizado() { ctx.redibujar(); renderStats(); renderMaster(); renderDetalle(); renderPaleta(); }
-  function ejecutar() { ctx.aplicarMapa(); render(); renderPaleta(); }
+  function actualizado() { ctx.redibujar(); renderStats(); renderMaster(); renderDetalle(); renderPaleta(); renderPal(); }
+  function ejecutar() { ctx.aplicarMapa(); render(); renderPaleta(); renderPal(); }
 
   Q('#dvStats').addEventListener('click', ev => { const s = ev.target.closest('.dv-stat'); if (!s) return; ui.filtro = s.dataset.v; renderStats(); renderMaster(); });
   Q('#dvLista').addEventListener('click', ev => {
@@ -320,6 +339,8 @@ function init(ctx) {
     const b = ev.target.closest('button'); if (!b || b.disabled) return; const e = entrada(ui.sel); if (!e) return; const s = mapa.slots[e.name];
     if (b.dataset.tex !== undefined) return editar({ texture: b.dataset.tex || null });
     if (b.dataset.modo) return modoMuestra(b.dataset.modo);
+    if (b.dataset.rol) { mapa.setRole(e.name, b.dataset.rol === e.autoRole ? null : b.dataset.rol); return actualizado(); }
+    if (b.dataset.accion === 'rol-auto') { mapa.setRole(e.name, null); return actualizado(); }
     if (b.dataset.accion === 'quitar-muestra') { const v = s.variants[s.active]; return editar({ sample: null, sampleMode: null, tint: v.sampleMode === 'color' || MM.isColorOnly(e.result.rule) ? null : v.tint }); }
     if (b.dataset.f === 'randomUV') return editar({ randomUV: b.getAttribute('aria-checked') === 'true' ? null : true });
     if (b.dataset.ph) {
