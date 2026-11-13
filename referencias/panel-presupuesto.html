@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Panel lateral colapsable — estilo iOS</title>
+<style>
+/* =========================================================
+   TOKENS — dos temas: claro (por defecto, como la referencia) y oscuro
+   ========================================================= */
+:root{
+  --font:-apple-system,BlinkMacSystemFont,"SF Pro Text","Inter","Segoe UI",system-ui,sans-serif;
+  --serif:"Iowan Old Style","Palatino Linotype",Palatino,"Book Antiqua",Georgia,serif;
+  --mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+  --ease:cubic-bezier(.22,1,.36,1);
+  --spring:cubic-bezier(.34,1.4,.64,1);
+  --panel-w:380px; --gap:14px; --radius:24px;
+}
+[data-theme="light"]{
+  --glass:rgba(246,246,248,.72); --glass-strong:rgba(250,250,252,.86);
+  --stroke:rgba(0,0,0,.08); --hair:rgba(0,0,0,.08);
+  --text:#1c1c1e; --text-2:rgba(60,60,67,.72); --text-3:rgba(60,60,67,.5);
+  --accent:#b8752e; --chip:rgba(118,118,128,.12); --chip-on:#fff;
+  --shadow:0 18px 50px rgba(0,0,0,.18),0 2px 6px rgba(0,0,0,.06);
+}
+[data-theme="dark"]{
+  --glass:rgba(28,28,30,.68); --glass-strong:rgba(36,36,38,.86);
+  --stroke:rgba(255,255,255,.09); --hair:rgba(255,255,255,.08);
+  --text:#f5f5f7; --text-2:rgba(235,235,245,.66); --text-3:rgba(235,235,245,.4);
+  --accent:#e0a35c; --chip:rgba(118,118,128,.24); --chip-on:rgba(255,255,255,.16);
+  --shadow:0 18px 50px rgba(0,0,0,.5);
+}
+*{box-sizing:border-box;margin:0}
+html,body{height:100%}
+body{font-family:var(--font);color:var(--text);-webkit-font-smoothing:antialiased;overflow:hidden;
+  background:#cfd6dc;}
+
+/* Fondo de muestra (aquí iría tu visor 3D) */
+.stage{position:fixed;inset:0;
+  background:
+    radial-gradient(120% 80% at 70% 10%,#f6e3c8 0%,rgba(246,227,200,0) 55%),
+    linear-gradient(180deg,#b9c9d6 0%,#d9d2c4 55%,#8f8a7f 100%);}
+[data-theme="dark"] .stage{background:radial-gradient(120% 80% at 70% 10%,#3b3326 0%,rgba(0,0,0,0) 55%),linear-gradient(180deg,#141a20 0%,#1d1c1a 60%,#0e0e0d 100%)}
+.stage::after{content:"";position:absolute;left:46%;bottom:18%;width:30%;height:46%;border-radius:6px;
+  background:linear-gradient(90deg,rgba(255,255,255,.35),rgba(255,255,255,.1));box-shadow:-80px 60px 0 -10px rgba(255,255,255,.18)}
+
+/* =========================================================
+   PANEL
+   ========================================================= */
+.side{
+  position:fixed;top:var(--gap);bottom:var(--gap);left:var(--gap);width:min(var(--panel-w),calc(100vw - 72px));
+  z-index:10;transition:transform .55s var(--spring);
+}
+.side[data-state="collapsed"]{transform:translateX(calc(-100% - var(--gap)))}
+
+.sheet{
+  height:100%;display:flex;flex-direction:column;overflow:hidden;
+  background:var(--glass);border:1px solid var(--stroke);border-radius:var(--radius);box-shadow:var(--shadow);
+  backdrop-filter:blur(30px) saturate(180%);-webkit-backdrop-filter:blur(30px) saturate(180%);
+  transition:opacity .35s var(--ease);
+}
+.side[data-state="collapsed"] .sheet{opacity:0;pointer-events:none}
+
+/* ---------- Pestaña (único control para extender/colapsar) ---------- */
+.tab{
+  position:absolute;top:50%;left:100%;margin-left:8px;transform:translateY(-50%);
+  width:30px;height:64px;border-radius:15px;border:1px solid var(--stroke);
+  background:var(--glass-strong);color:var(--text);box-shadow:0 6px 18px rgba(0,0,0,.14);
+  backdrop-filter:blur(24px) saturate(180%);-webkit-backdrop-filter:blur(24px) saturate(180%);
+  display:grid;place-items:center;cursor:pointer;
+  transition:transform .3s var(--spring),background .2s,margin-left .55s var(--spring);
+}
+.side[data-state="collapsed"] .tab{margin-left:calc(var(--gap) + 6px)}
+.tab:hover{transform:translateY(-50%) scale(1.06)}
+.tab:active{transform:translateY(-50%) scale(.94)}
+.tab:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+.tab svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round;
+  transition:transform .5s var(--spring)}
+.side[data-state="collapsed"] .tab svg{transform:rotate(180deg)}
+/* Etiqueta flotante con línea, como la referencia */
+.tab .tip{
+  position:absolute;left:calc(100% + 10px);top:50%;display:flex;align-items:center;gap:8px;pointer-events:none;
+  font:600 10.5px var(--font);letter-spacing:.14em;text-transform:uppercase;color:var(--text);white-space:nowrap;
+  opacity:0;transform:translate(-6px,-50%);transition:opacity .25s var(--ease),transform .3s var(--ease);
+  text-shadow:0 1px 6px rgba(255,255,255,.5);
+}
+[data-theme="dark"] .tab .tip{text-shadow:0 1px 6px rgba(0,0,0,.6)}
+.tab .tip::before{content:"";width:22px;height:1.5px;background:currentColor;border-radius:2px}
+.tab:hover .tip,.tab:focus-visible .tip{opacity:1;transform:translate(0,-50%)}
+
+/* ---------- Contenido ---------- */
+.scroll{flex:1;overflow:auto;padding:24px 24px 18px;scrollbar-width:thin}
+.eyebrow{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--text-3)}
+h1{font:400 32px/1.1 var(--serif);letter-spacing:-.01em;margin:8px 0 10px}
+.lead{font-size:14px;line-height:1.55;color:var(--text-2)}
+.facts{display:grid;grid-template-columns:1fr 1fr;gap:14px 16px;margin:20px 0 22px;padding:16px;border-radius:16px;background:var(--chip)}
+.facts span{display:block;font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--text-3)}
+.facts b{font:600 17px var(--font);letter-spacing:-.01em}
+.sec{display:flex;justify-content:space-between;align-items:baseline;margin:18px 0 10px}
+.sec h2{font-size:11px;font-weight:650;letter-spacing:.12em;text-transform:uppercase}
+.sec small{font-size:12px;color:var(--text-3)}
+
+/* Control segmentado iOS */
+.seg{position:relative;display:grid;grid-template-columns:repeat(3,1fr);padding:3px;border-radius:12px;background:var(--chip)}
+.seg .pill{position:absolute;top:3px;bottom:3px;left:3px;width:calc((100% - 6px)/3);border-radius:9px;background:var(--chip-on);
+  box-shadow:0 3px 8px rgba(0,0,0,.12);transition:transform .45s var(--spring)}
+.seg button{position:relative;border:none;background:none;height:34px;font:500 13.5px var(--font);color:var(--text-2);cursor:pointer;transition:color .2s}
+.seg button[aria-selected="true"]{color:var(--text);font-weight:600}
+
+.items{list-style:none;padding:0;border-radius:16px;background:var(--chip);overflow:hidden}
+.items li{display:grid;grid-template-columns:12px 1fr auto;gap:4px 12px;padding:13px 14px;border-bottom:1px solid var(--hair)}
+.items li:last-child{border-bottom:none}
+.items i{width:10px;height:10px;border-radius:3px;margin-top:4px;background:var(--c)}
+.items b{font-size:14px;font-weight:600;line-height:1.3}
+.items em{font-style:normal;font-size:14px;font-weight:600;font-variant-numeric:tabular-nums}
+.items p{grid-column:2/4;font-size:12.5px;line-height:1.45;color:var(--text-2)}
+
+/* Pie fijo con el costo */
+.total{border-top:1px solid var(--hair);padding:14px 24px 18px;background:var(--glass-strong);
+  display:grid;grid-template-columns:1fr auto;gap:2px 12px;align-items:end}
+.total .k{font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--text-3)}
+.total .k.r{text-align:right;color:var(--accent);font-weight:650}
+.total .v{font:400 36px/1 var(--serif);letter-spacing:-.02em}
+.total .v small{font:400 13px var(--font);color:var(--text-2);margin-left:4px}
+.total .m2{text-align:right;font-weight:650;font-size:16px;font-variant-numeric:tabular-nums}
+.total .m2 small{display:block;font-weight:400;font-size:11.5px;color:var(--text-3)}
+.total .d{font-size:12px;color:var(--text-2)}
+.copy{justify-self:end;border:none;background:var(--chip);color:var(--text);font:600 12px var(--font);padding:6px 11px;border-radius:99px;cursor:pointer;transition:transform .2s var(--spring)}
+.copy:active{transform:scale(.94)}
+
+/* Selector de tema (solo demo) */
+.theme{position:fixed;right:16px;top:16px;z-index:20;border:1px solid var(--stroke);background:var(--glass-strong);color:var(--text);
+  font:500 12px var(--font);padding:7px 12px;border-radius:99px;cursor:pointer;backdrop-filter:blur(20px)}
+
+@media (prefers-reduced-motion:reduce){*{transition-duration:0s!important}}
+</style>
+</head>
+<body data-theme="light">
+<div class="stage"></div>
+<button class="theme" id="themeBtn">Tema oscuro</button>
+
+<aside class="side" id="budget" data-state="expanded" aria-label="Presupuesto">
+  <div class="sheet" id="budgetSheet">
+    <div class="scroll">
+      <div class="eyebrow">Anteproyecto conceptual · Conjunto en esquina</div>
+      <h1>Corporativo Toscano</h1>
+      <p class="lead">Un conjunto en cascada: torre, cuerpo de oficinas de cinco niveles con la terraza directiva, rotonda de arcos para tienda y restaurante y un ala baja con jardín en azotea. Oficinas para 200 personas. Se recorre por dentro y se separa por niveles.</p>
+
+      <div class="facts">
+        <div><span>Desplante</span><b>515 m²</b></div>
+        <div><span>Construido</span><b>1,910 m²</b></div>
+        <div><span>Personas</span><b>200</b></div>
+        <div><span>Cajones</span><b>200</b></div>
+      </div>
+
+      <div class="sec"><h2>Escenarios</h2><small>punto de partida, se ajusta abajo</small></div>
+      <div class="seg" role="tablist" id="seg">
+        <span class="pill"></span>
+        <button role="tab" aria-selected="false" data-i="0">Esencial</button>
+        <button role="tab" aria-selected="true" data-i="1">Equilibrado</button>
+        <button role="tab" aria-selected="false" data-i="2">Insignia</button>
+      </div>
+
+      <div class="sec"><h2>Fachada</h2><small>1,450 m² de muro</small></div>
+      <ul class="items">
+        <li style="--c:#d39a5f"><i></i><b>Aplanado ocre con basamento de cantera</b><em>$3.0 M</em>
+          <p>Mortero a la cal pigmentado; cantera en arcadas, marcos y cornisas</p></li>
+        <li style="--c:#a4553b"><i></i><b>Ladrillo aparente (ejemplo)</b><em>$4.8 M</em>
+          <p>Contenido de muestra: aquí van tus demás partidas</p></li>
+      </ul>
+    </div>
+
+    <div class="total">
+      <span class="k">Costo del escenario</span><span class="k r" id="scnName">Equilibrado</span>
+      <span class="v">$113.8<small>millones</small></span><span class="m2">$59,587 / m²<small>construido</small></span>
+      <span class="d">+24.2 M respecto a Esencial</span><button class="copy">Copiar resumen</button>
+    </div>
+  </div>
+
+  <!-- Única pestaña para extender / colapsar -->
+  <button class="tab" id="budgetTab" aria-controls="budgetSheet" aria-expanded="true" aria-label="Colapsar presupuesto">
+    <svg viewBox="0 0 24 24"><path d="M15 6l-6 6 6 6"/></svg>
+    <span class="tip">Presupuesto</span>
+  </button>
+</aside>
+
+<script>
+/* ---------- Extender / colapsar ---------- */
+(function(){
+  const side = document.getElementById('budget'), tab = document.getElementById('budgetTab');
+  function set(expanded){
+    side.dataset.state = expanded ? 'expanded' : 'collapsed';
+    tab.setAttribute('aria-expanded', expanded);
+    tab.setAttribute('aria-label', (expanded ? 'Colapsar' : 'Extender') + ' presupuesto');
+    try{ localStorage.setItem('budgetPanel', side.dataset.state); }catch(e){}
+  }
+  tab.addEventListener('click', () => set(side.dataset.state !== 'expanded'));
+  document.addEventListener('keydown', e => {            // atajo: tecla P
+    if (e.key.toLowerCase() === 'p' && !/input|textarea|select/i.test(e.target.tagName)) set(side.dataset.state !== 'expanded');
+  });
+  try{ if (localStorage.getItem('budgetPanel') === 'collapsed') set(false); }catch(e){}
+})();
+
+/* ---------- Control segmentado ---------- */
+(function(){
+  const seg = document.getElementById('seg'), pill = seg.querySelector('.pill');
+  const btns = [...seg.querySelectorAll('button')];
+  const move = i => pill.style.transform = `translateX(${i * 100}%)`;
+  btns.forEach(b => b.addEventListener('click', () => {
+    btns.forEach(x => x.setAttribute('aria-selected', x === b));
+    move(+b.dataset.i);
+    document.getElementById('scnName').textContent = b.textContent;
+  }));
+  move(btns.findIndex(b => b.getAttribute('aria-selected') === 'true'));
+})();
+
+/* ---------- Tema (solo demo) ---------- */
+document.getElementById('themeBtn').addEventListener('click', e => {
+  const dark = document.body.dataset.theme !== 'dark';
+  document.body.dataset.theme = dark ? 'dark' : 'light';
+  e.target.textContent = dark ? 'Tema claro' : 'Tema oscuro';
+});
+</script>
+</body>
+</html>

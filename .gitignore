@@ -12,3 +12,8 @@ Thumbs.db
 # Archivos temporales
 *.tmp
 *.bak
+
+# Modelos de prueba pesados (no se versionan)
+referencias/*.glb
+referencias/capturas/
+.claude/

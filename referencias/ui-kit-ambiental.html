@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>UI Kit — Iluminación, menú y barra de herramientas</title>
+<style>
+/* ============ TOKENS ============ */
+:root{
+  --bg:#0a0a0b;
+  --surface:rgba(44,44,46,.72);
+  --surface-solid:#1c1c1e;
+  --stroke:rgba(255,255,255,.08);
+  --text:#f5f5f7;
+  --text-2:rgba(235,235,245,.6);
+  --accent:#ff9f0a;
+  --blue:#5b8bd9;
+  --track-off:#3a3a3c;
+  --radius-l:22px; --radius-m:14px;
+  --ease-spring:cubic-bezier(.34,1.56,.64,1);
+  --ease-out:cubic-bezier(.22,1,.36,1);
+  --font:-apple-system,BlinkMacSystemFont,"SF Pro Text","Inter","Segoe UI",system-ui,sans-serif;
+  --mono:ui-monospace,"SF Mono","JetBrains Mono",Menlo,Consolas,monospace;
+}
+*{box-sizing:border-box;margin:0}
+body{
+  min-height:100vh;background:var(--bg);color:var(--text);font-family:var(--font);
+  -webkit-font-smoothing:antialiased;
+  display:grid;place-items:center;padding:40px 16px 140px;
+  transition:background .6s var(--ease-out);
+}
+svg.i{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex:none}
+
+/* ============ ESCENA DEMO (solo para ver el efecto) ============ */
+.scene{
+  width:min(720px,100%);aspect-ratio:16/8;border-radius:var(--radius-l);
+  background:var(--sky,#0b1030);border:1px solid var(--stroke);
+  position:relative;overflow:hidden;margin-bottom:28px;
+  transition:background .4s var(--ease-out);
+}
+.scene .orb{position:absolute;width:56px;height:56px;border-radius:50%;
+  left:calc(8% + var(--t,0) * 84% - 28px);top:calc(74% - var(--arc,0) * 56%);
+  background:var(--orb,#e8ecff);box-shadow:0 0 60px 10px var(--orb,#e8ecff);
+  transition:background .4s, box-shadow .4s}
+.scene .ground{position:absolute;inset:auto 0 0 0;height:26%;background:rgba(0,0,0,.45)}
+
+/* ============ TARJETA ============ */
+.card{
+  width:min(720px,100%);background:var(--surface);border:1px solid var(--stroke);
+  border-radius:var(--radius-l);padding:22px 26px;
+  backdrop-filter:blur(24px) saturate(180%);-webkit-backdrop-filter:blur(24px) saturate(180%);
+}
+.card-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:26px}
+.card-head h2{font-size:15px;font-weight:600;letter-spacing:-.01em}
+.card-head small{color:var(--text-2);font-size:13px}
+
+/* ============ 1. SLIDER DE ILUMINACIÓN ============ */
+/* Presets: solo ícono + texto */
+.presets{display:flex;justify-content:center;gap:28px;margin:0 auto 26px}
+.preset{
+  display:flex;align-items:center;gap:7px;padding:4px 2px;border:none;background:transparent;
+  color:var(--text-2);font:500 13px var(--font);cursor:pointer;
+  transition:transform .25s var(--ease-spring);
+}
+.preset svg.i{width:20px;height:20px;transition:color .3s var(--ease-out),transform .3s var(--ease-spring)}
+.preset:active{transform:scale(.94)}
+.preset[aria-pressed="true"] svg.i{color:var(--blue);transform:scale(1.1)}
+.preset:focus-visible{outline:2px solid var(--blue);outline-offset:3px;border-radius:6px}
+
+.ambient{display:flex;align-items:center;gap:18px;padding-bottom:52px}
+.ambient .end{color:var(--text);opacity:.55;transition:opacity .3s,transform .3s var(--ease-spring)}
+.ambient .end svg{width:30px;height:30px}
+.range-wrap{position:relative;flex:1;--thumb:24px;
+  --day-grad:linear-gradient(90deg,#3e6299,var(--blue));
+}
+.range-wrap input{
+  -webkit-appearance:none;appearance:none;width:100%;height:24px;background:transparent;cursor:pointer;display:block;
+}
+.range-wrap input:focus-visible{outline:none}
+/* Track: degradado noche→día + máscara gris para la parte no recorrida */
+.range-wrap input::-webkit-slider-runnable-track{
+  height:7px;border-radius:99px;
+  background:
+    linear-gradient(90deg,transparent var(--p),var(--track-off) var(--p)),
+    var(--day-grad);
+}
+.range-wrap input::-moz-range-track{
+  height:7px;border-radius:99px;
+  background:
+    linear-gradient(90deg,transparent var(--p),var(--track-off) var(--p)),
+    var(--day-grad);
+}
+.range-wrap input::-webkit-slider-thumb{
+  -webkit-appearance:none;width:var(--thumb);height:var(--thumb);margin-top:-8.5px;border-radius:50%;
+  background:#f2f2f7;border:none;box-shadow:0 2px 8px rgba(0,0,0,.45),0 0 0 .5px rgba(0,0,0,.2);
+  transition:transform .25s var(--ease-spring);
+}
+.range-wrap input::-moz-range-thumb{
+  width:var(--thumb);height:var(--thumb);border-radius:50%;background:#f2f2f7;border:none;
+  box-shadow:0 2px 8px rgba(0,0,0,.45);transition:transform .25s var(--ease-spring);
+}
+.range-wrap input:active::-webkit-slider-thumb{transform:scale(1.18)}
+.range-wrap input:active::-moz-range-thumb{transform:scale(1.18)}
+.range-wrap input:focus-visible::-webkit-slider-thumb{box-shadow:0 0 0 4px rgba(91,139,217,.45)}
+
+/* Burbuja con la hora (debajo del slider, vidrio translúcido) */
+.bubble{
+  position:absolute;top:calc(100% + 10px);
+  left:calc(var(--pn) * (100% - var(--thumb)) + var(--thumb) / 2);
+  transform:translateX(-50%) scale(.96);transform-origin:top center;
+  background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.14);
+  backdrop-filter:blur(16px) saturate(180%);-webkit-backdrop-filter:blur(16px) saturate(180%);
+  color:var(--text);border-radius:10px;padding:7px 11px;
+  font:700 16px/1 var(--mono);letter-spacing:-.02em;text-align:center;white-space:nowrap;
+  box-shadow:0 6px 18px rgba(0,0,0,.25);pointer-events:none;
+  transition:transform .25s var(--ease-spring);
+}
+.range-wrap:active .bubble,.range-wrap:focus-within .bubble{transform:translateX(-50%) scale(1.06)}
+
+/* ============ 2. MENÚ DESPLEGABLE ============ */
+.dropdown{position:relative}
+.dd-btn{
+  display:flex;align-items:center;gap:8px;height:36px;padding:0 12px 0 14px;border-radius:99px;
+  background:rgba(118,118,128,.24);border:none;color:var(--text);font:500 14px var(--font);cursor:pointer;
+  transition:background .2s,transform .2s var(--ease-spring);
+}
+.dd-btn:hover{background:rgba(118,118,128,.32)}
+.dd-btn:active{transform:scale(.96)}
+.dd-btn .chev{width:16px;height:16px;transition:transform .3s var(--ease-out)}
+.dropdown.open .chev{transform:rotate(180deg)}
+.dd-menu{
+  position:absolute;right:0;top:calc(100% + 8px);min-width:230px;z-index:20;
+  background:rgba(37,37,39,.82);border:1px solid var(--stroke);border-radius:var(--radius-m);padding:6px;
+  backdrop-filter:blur(30px) saturate(180%);-webkit-backdrop-filter:blur(30px) saturate(180%);
+  box-shadow:0 20px 50px rgba(0,0,0,.5);
+  transform-origin:top right;transform:scale(.85);opacity:0;visibility:hidden;
+  transition:transform .35s var(--ease-spring),opacity .2s,visibility 0s .35s;
+  list-style:none;
+}
+.dropdown.open .dd-menu{transform:scale(1);opacity:1;visibility:visible;transition:transform .35s var(--ease-spring),opacity .2s}
+.dd-menu li{
+  display:flex;align-items:center;gap:12px;padding:9px 10px;border-radius:9px;
+  font-size:14px;cursor:pointer;color:var(--text);
+}
+.dd-menu li svg.i{width:19px;height:19px;color:var(--text-2)}
+.dd-menu li .check{margin-left:auto;color:var(--accent);opacity:0;transform:scale(.6);transition:.25s var(--ease-spring)}
+.dd-menu li[aria-selected="true"] .check{opacity:1;transform:scale(1)}
+.dd-menu li:hover,.dd-menu li.focus{background:rgba(255,255,255,.08)}
+.dd-menu .sep{height:1px;background:var(--stroke);margin:5px 8px;padding:0;pointer-events:none}
+
+/* ============ 3. BARRA DE ÍCONOS ============ */
+.toolbar{
+  position:fixed;left:50%;bottom:26px;transform:translateX(-50%);
+  display:flex;gap:4px;padding:6px;border-radius:24px;
+  background:var(--surface);border:1px solid var(--stroke);
+  backdrop-filter:blur(30px) saturate(180%);-webkit-backdrop-filter:blur(30px) saturate(180%);
+  box-shadow:0 18px 40px rgba(0,0,0,.5);
+}
+.toolbar .pill{
+  position:absolute;top:6px;height:48px;width:48px;border-radius:18px;
+  background:rgba(255,255,255,.14);
+  transition:transform .45s var(--ease-spring),width .45s var(--ease-spring);
+  pointer-events:none;
+}
+.toolbar .sep{width:1px;margin:10px 4px;background:var(--stroke)}
+.tool{
+  position:relative;width:48px;height:48px;border:none;border-radius:18px;background:transparent;
+  color:var(--text-2);display:grid;place-items:center;cursor:pointer;
+  transition:color .25s,transform .25s var(--ease-spring);
+}
+.tool:hover{color:var(--text)}
+.tool:active{transform:scale(.88)}
+.tool[aria-pressed="true"]{color:var(--accent)}
+.tool:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+/* Etiqueta flotante */
+.tool::after{
+  content:attr(data-tip);position:absolute;bottom:calc(100% + 12px);left:50%;
+  transform:translate(-50%,6px) scale(.9);opacity:0;pointer-events:none;
+  background:#f2f2f7;color:#111;font:600 12px var(--font);padding:6px 9px;border-radius:8px;white-space:nowrap;
+  transition:.22s var(--ease-out);
+}
+.tool:hover::after,.tool:focus-visible::after{opacity:1;transform:translate(-50%,0) scale(1)}
+
+@media (max-width:520px){
+  .tool{width:42px;height:42px}.toolbar .pill{width:42px;height:42px}
+  .ambient{gap:10px}.ambient .end svg{width:24px;height:24px}
+}
+@media (prefers-reduced-motion:reduce){*{transition-duration:0s!important}}
+</style>
+</head>
+<body>
+
+<!-- Sprite de íconos (trazo 2px, estilo SF Symbols / Lucide) -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-moon" viewBox="0 0 24 24"><path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/></symbol>
+  <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></symbol>
+  <symbol id="i-sunset" viewBox="0 0 24 24"><path d="M2 18h20M6.5 18a5.5 5.5 0 0 1 11 0M12 5v3M4.9 10.4l1.4 1.4M19.1 10.4l-1.4 1.4M8 21.5h8"/></symbol>
+  <symbol id="i-orbit" viewBox="0 0 24 24"><path d="M21 12a9 9 0 1 1-2.6-6.4"/><path d="M21 3.5v5h-5"/></symbol>
+  <symbol id="i-pan" viewBox="0 0 24 24"><path d="M12 3v18M3 12h18M9 6l3-3 3 3M9 18l3 3 3-3M6 9l-3 3 3 3M18 9l3 3-3 3"/></symbol>
+  <symbol id="i-ruler" viewBox="0 0 24 24"><rect x="2.5" y="8" width="19" height="8" rx="2"/><path d="M7 8v3M11 8v4M15 8v3M19 8v2"/></symbol>
+  <symbol id="i-cut" viewBox="0 0 24 24"><path d="M12 3l8 4.5v9L12 21l-8-4.5v-9z"/><path d="M4 12l8 4.5 8-4.5" stroke-dasharray="2.5 2.5"/></symbol>
+  <symbol id="i-layers" viewBox="0 0 24 24"><path d="M12 3l9 5-9 5-9-5z"/><path d="M3 13l9 5 9-5"/></symbol>
+  <symbol id="i-full" viewBox="0 0 24 24"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></symbol>
+  <symbol id="i-eye" viewBox="0 0 24 24"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></symbol>
+  <symbol id="i-cube" viewBox="0 0 24 24"><path d="M12 3l8 4.5v9L12 21l-8-4.5v-9z"/><path d="M12 12l8-4.5M12 12v9M12 12L4 7.5"/></symbol>
+  <symbol id="i-plan" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 10h8v11M11 14h10"/></symbol>
+  <symbol id="i-elev" viewBox="0 0 24 24"><path d="M3 21h18M5 21V10l7-6 7 6v11"/><path d="M10 21v-5h4v5"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></symbol>
+  <symbol id="i-chev" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></symbol>
+</svg>
+
+<div class="scene" id="scene" aria-hidden="true"><div class="orb"></div><div class="ground"></div></div>
+
+<section class="card">
+  <div class="card-head">
+    <div>
+      <h2>Iluminación ambiental</h2>
+      <small>Arrastra para cambiar la hora del día</small>
+    </div>
+
+    <!-- 2. MENÚ DESPLEGABLE -->
+    <div class="dropdown" id="viewMenu">
+      <button class="dd-btn" aria-haspopup="listbox" aria-expanded="false">
+        <svg class="i" style="width:18px;height:18px"><use href="#i-eye"/></svg>
+        <span class="dd-label">Perspectiva</span>
+        <svg class="i chev"><use href="#i-chev"/></svg>
+      </button>
+      <ul class="dd-menu" role="listbox" tabindex="-1">
+        <li role="option" data-value="perspectiva" aria-selected="true"><svg class="i"><use href="#i-cube"/></svg>Perspectiva<svg class="i check"><use href="#i-check"/></svg></li>
+        <li role="option" data-value="planta"><svg class="i"><use href="#i-plan"/></svg>Planta<svg class="i check"><use href="#i-check"/></svg></li>
+        <li role="option" data-value="alzado"><svg class="i"><use href="#i-elev"/></svg>Alzado<svg class="i check"><use href="#i-check"/></svg></li>
+        <li class="sep" role="separator"></li>
+        <li role="option" data-value="corte"><svg class="i"><use href="#i-cut"/></svg>Corte de sección<svg class="i check"><use href="#i-check"/></svg></li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- PRESETS: data-time = hora a la que salta el slider -->
+  <div class="presets" id="presets" role="group" aria-label="Presets de iluminación">
+    <button class="preset" data-time="12:00" aria-pressed="false"><svg class="i"><use href="#i-sun"/></svg>Día</button>
+    <button class="preset" data-time="18:30" aria-pressed="false"><svg class="i"><use href="#i-sunset"/></svg>Tarde</button>
+    <button class="preset" data-time="22:00" aria-pressed="false"><svg class="i"><use href="#i-moon"/></svg>Noche</button>
+  </div>
+
+  <!-- 1. SLIDER DE ILUMINACIÓN
+       data-start / data-end: hora de cada extremo (HH:MM, 24:00 = medianoche). data-step en minutos. -->
+  <div class="ambient" id="ambient" data-start="05:30" data-end="24:00" data-step="5" data-value="12:00">
+    <span class="end day" title="Amanecer"><svg class="i"><use href="#i-sun"/></svg></span>
+    <div class="range-wrap">
+      <div class="bubble"><span class="time">12:00</span></div>
+      <input type="range" aria-label="Hora del día">
+    </div>
+    <span class="end night" title="Medianoche"><svg class="i"><use href="#i-moon"/></svg></span>
+  </div>
+</section>
+
+<!-- 3. BARRA DE HERRAMIENTAS CON ÍCONOS -->
+<nav class="toolbar" id="toolbar" aria-label="Herramientas">
+  <span class="pill"></span>
+  <button class="tool" data-tool="orbitar" data-tip="Orbitar" aria-label="Orbitar" aria-pressed="true"><svg class="i"><use href="#i-orbit"/></svg></button>
+  <button class="tool" data-tool="mover" data-tip="Mover" aria-label="Mover"><svg class="i"><use href="#i-pan"/></svg></button>
+  <button class="tool" data-tool="medir" data-tip="Medir" aria-label="Medir"><svg class="i"><use href="#i-ruler"/></svg></button>
+  <button class="tool" data-tool="corte" data-tip="Corte" aria-label="Corte"><svg class="i"><use href="#i-cut"/></svg></button>
+  <button class="tool" data-tool="capas" data-tip="Capas" aria-label="Capas"><svg class="i"><use href="#i-layers"/></svg></button>
+  <span class="sep"></span>
+  <button class="tool" data-action="fullscreen" data-tip="Pantalla completa" aria-label="Pantalla completa"><svg class="i"><use href="#i-full"/></svg></button>
+</nav>
+
+<script>
+/* =========================================================
+   Eventos que emite el kit (escúchalos para conectar tu escena):
+   - "ambientchange"  detail: { minutes, time:"HH:MM", t:0..1, phase }
+   - "viewchange"     detail: { value }
+   - "toolchange"     detail: { tool }
+   ========================================================= */
+
+/* ---------- 1. Slider de iluminación + presets ---------- */
+(function(){
+  const root = document.getElementById('ambient');
+  const wrap = root.querySelector('.range-wrap');
+  const input = root.querySelector('input');
+  const timeEl = root.querySelector('.time');
+  const dayIcon = root.querySelector('.day'), nightIcon = root.querySelector('.night');
+  const presetsEl = document.getElementById('presets');
+  const presets = [...presetsEl.querySelectorAll('.preset')];
+
+  const toMin = s => { const [h,m] = s.split(':').map(Number); return h*60+m; };
+  const fmt = m => { m = ((Math.round(m) % 1440) + 1440) % 1440; return String(Math.floor(m/60)).padStart(2,'0')+':'+String(m%60).padStart(2,'0'); };
+  const start = toMin(root.dataset.start), end = toMin(root.dataset.end);
+  input.min = start; input.max = end; input.step = root.dataset.step || 1;
+  input.value = toMin(root.dataset.value || root.dataset.start);
+
+  function phaseOf(min){
+    const h = min/60;
+    if (h < 7)  return 'Amanecer';
+    if (h < 11) return 'Mañana';
+    if (h < 15) return 'Mediodía';
+    if (h < 18) return 'Tarde';
+    if (h < 20) return 'Atardecer';
+    return 'Noche';
+  }
+  // Paleta del cielo por hora (solo demo): [hora, cielo, sol/luna]
+  const sky = [[5.5,'#2b2350','#ffb08a'],[8,'#7fb6ff','#fff1c9'],[13,'#5fa8ff','#fff6d5'],[17.5,'#e0915a','#ffe3a0'],[19.5,'#6a3a6e','#ff9f6a'],[21,'#0d1236','#dfe6ff'],[24,'#05081c','#dfe6ff']];
+  const hex = h => h.match(/\w\w/g).map(x=>parseInt(x,16));
+  const mix = (a,b,k) => 'rgb('+hex(a).map((v,i)=>Math.round(v+(hex(b)[i]-v)*k)).join(',')+')';
+  function skyAt(h,idx){ for(let i=1;i<sky.length;i++){ if(h<=sky[i][0]){ const k=(h-sky[i-1][0])/(sky[i][0]-sky[i-1][0]); return mix(sky[i-1][idx],sky[i][idx],Math.max(0,k));} } return sky.at(-1)[idx]; }
+
+  function syncPresets(min){
+    const match = presets.find(b => toMin(b.dataset.time) === min);
+    presets.forEach(b => b.setAttribute('aria-pressed', b===match ? 'true' : 'false'));
+  }
+
+  function update(){
+    const min = +input.value, t = (min-start)/(end-start||1);
+    wrap.style.setProperty('--p', (t*100)+'%');
+    wrap.style.setProperty('--pn', t);
+    const time = fmt(min), phase = phaseOf(min);
+    timeEl.textContent = time;
+    input.setAttribute('aria-valuetext', time+' — '+phase);
+    dayIcon.style.opacity   = .35 + (1-t)*.65; dayIcon.style.transform   = `scale(${1+(1-t)*.12})`;
+    nightIcon.style.opacity = .35 + t*.65;     nightIcon.style.transform = `scale(${1+t*.12})`;
+    syncPresets(min);
+    // Demo visual
+    const scene = document.getElementById('scene');
+    scene.style.setProperty('--t', t);
+    scene.style.setProperty('--arc', Math.sin(Math.PI*t));
+    scene.style.setProperty('--sky', skyAt(min/60,1));
+    scene.style.setProperty('--orb', skyAt(min/60,2));
+    root.dispatchEvent(new CustomEvent('ambientchange',{bubbles:true,detail:{minutes:min,time,t,phase}}));
+  }
+
+  // Transición suave al elegir un preset
+  let anim;
+  function animateTo(target){
+    cancelAnimationFrame(anim);
+    const from = +input.value, dur = 700, t0 = performance.now(), step = +input.step;
+    const ease = x => x<.5 ? 4*x*x*x : 1-Math.pow(-2*x+2,3)/2;
+    (function frame(now){
+      const k = Math.min(1,(now-t0)/dur);
+      input.value = Math.round((from + (target-from)*ease(k))/step)*step;
+      update();
+      if(k<1) anim = requestAnimationFrame(frame);
+    })(t0);
+  }
+  presets.forEach(b => b.addEventListener('click', () => animateTo(toMin(b.dataset.time))));
+
+  input.addEventListener('input', () => { cancelAnimationFrame(anim); update(); });
+  update();
+})();
+
+/* ---------- 2. Menú desplegable ---------- */
+(function(){
+  const dd = document.getElementById('viewMenu');
+  const btn = dd.querySelector('.dd-btn'), menu = dd.querySelector('.dd-menu'), label = dd.querySelector('.dd-label');
+  const items = [...menu.querySelectorAll('[role="option"]')];
+  let focus = -1;
+  const setFocus = i => { items.forEach(x=>x.classList.remove('focus')); focus = (i+items.length)%items.length; items[focus].classList.add('focus'); };
+  const open  = () => { dd.classList.add('open'); btn.setAttribute('aria-expanded','true'); setFocus(Math.max(0, items.findIndex(x=>x.getAttribute('aria-selected')==='true'))); menu.focus(); };
+  const close = () => { dd.classList.remove('open'); btn.setAttribute('aria-expanded','false'); items.forEach(x=>x.classList.remove('focus')); };
+  function choose(li){
+    items.forEach(x=>x.setAttribute('aria-selected', x===li ? 'true' : 'false'));
+    label.textContent = li.textContent.trim();
+    btn.querySelector('use').setAttribute('href', li.querySelector('use').getAttribute('href'));
+    dd.dispatchEvent(new CustomEvent('viewchange',{bubbles:true,detail:{value:li.dataset.value}}));
+    close(); btn.focus();
+  }
+  btn.addEventListener('click', e => { e.stopPropagation(); dd.classList.contains('open') ? close() : open(); });
+  items.forEach((li,i) => { li.addEventListener('click', () => choose(li)); li.addEventListener('mousemove', () => setFocus(i)); });
+  menu.addEventListener('keydown', e => {
+    if (e.key==='ArrowDown'){ e.preventDefault(); setFocus(focus+1); }
+    else if (e.key==='ArrowUp'){ e.preventDefault(); setFocus(focus-1); }
+    else if (e.key==='Enter'||e.key===' '){ e.preventDefault(); choose(items[focus]); }
+    else if (e.key==='Escape'||e.key==='Tab'){ close(); btn.focus(); }
+  });
+  document.addEventListener('click', e => { if (!dd.contains(e.target)) close(); });
+})();
+
+/* ---------- 3. Barra de herramientas ---------- */
+(function(){
+  const bar = document.getElementById('toolbar');
+  const pill = bar.querySelector('.pill');
+  const tools = [...bar.querySelectorAll('.tool[data-tool]')];
+  function movePill(btn){
+    pill.style.width = btn.offsetWidth+'px';
+    pill.style.height = btn.offsetHeight+'px';
+    pill.style.transform = `translateX(${btn.offsetLeft - 6}px)`;
+    pill.style.left = '6px';
+  }
+  tools.forEach(btn => btn.addEventListener('click', () => {
+    tools.forEach(b => b.setAttribute('aria-pressed', b===btn ? 'true' : 'false'));
+    movePill(btn);
+    bar.dispatchEvent(new CustomEvent('toolchange',{bubbles:true,detail:{tool:btn.dataset.tool}}));
+  }));
+  bar.querySelector('[data-action="fullscreen"]').addEventListener('click', () => {
+    document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen?.();
+  });
+  const sync = () => movePill(bar.querySelector('.tool[aria-pressed="true"]'));
+  window.addEventListener('resize', sync);
+  sync();
+})();
+
+/* ---------- Ejemplo de integración ---------- */
+document.addEventListener('ambientchange', e => {
+  // Aquí conectas tu escena, p. ej. con three.js:
+  // t: 0 = amanecer (05:30) … 1 = medianoche. Arco solar: Math.sin(Math.PI * t)
+  // sun.intensity = Math.max(0, Math.sin(Math.PI * e.detail.t));
+});
+document.addEventListener('viewchange', e => console.log('Vista:', e.detail.value));
+document.addEventListener('toolchange', e => console.log('Herramienta:', e.detail.tool));
+</script>
+</body>
+</html>
