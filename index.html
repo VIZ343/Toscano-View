@@ -425,6 +425,15 @@ h1{margin:8px 0 10px;font-family:var(--display);font-weight:400;font-size:32px;f
 .dv-switch::after{content:'';position:absolute;top:2px;left:2px;width:22px;height:22px;border-radius:50%;background:#f2f2f7;box-shadow:0 2px 6px rgba(0,0,0,.35);transition:transform .4s var(--spring)}
 .dv-switch[aria-checked=true]{background:#5b8bd9}.dv-switch[aria-checked=true]::after{transform:translateX(18px)}
 .dv-switch[disabled]{opacity:.4;cursor:default}
+/* muestras por slot */
+.dv-muestra{position:relative;display:grid;place-items:center;aspect-ratio:16/9;border:1.5px dashed rgba(235,235,245,.22);border-radius:14px;overflow:hidden;text-align:center;color:rgba(235,235,245,.6);font-size:12.5px;line-height:1.4;transition:border-color .2s,background .2s,transform .35s var(--spring)}
+.dv-muestra small{color:rgba(235,235,245,.35);font-size:11px}
+.dv-muestra.llena{border-style:solid;border-color:rgba(255,255,255,.1)}
+.dv-muestra img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.dv-detail.soltar .dv-muestra{border-color:#5b8bd9;background:rgba(91,139,217,.14);transform:scale(1.02)}
+.dv-seg.dos{grid-template-columns:repeat(2,1fr);margin:0}.dv-seg.dos .pill{width:calc((100% - 6px)/2)}
+.dv-seg button[disabled]{opacity:.4;cursor:not-allowed}
+label.dv-btn[aria-disabled=true]{opacity:.5;pointer-events:none}
 @media (max-width:760px){.dv{width:auto;right:var(--gap)}}
 /* DEV:END */
 </style>
@@ -512,7 +521,7 @@ h1{margin:8px 0 10px;font-family:var(--display);font-weight:400;font-size:32px;f
       </header>
       <div class="dv-body">
         <div class="dv-actions dv-col">
-          <label class="dv-btn dv-primary">Cargar GLB<input type="file" id="dvGlb" accept=".glb,.json" multiple hidden></label>
+          <label class="dv-btn dv-primary">Cargar GLB<input type="file" id="dvGlb" accept=".glb,.json,.zip" multiple hidden></label>
           <button class="dv-btn" id="dvDemo" type="button">Escena de prueba · FRIOX</button>
           <button class="dv-btn" id="dvBase" type="button">Modelo base</button>
         </div>
@@ -548,7 +557,7 @@ h1{margin:8px 0 10px;font-family:var(--display);font-weight:400;font-size:32px;f
         </div>
         <footer>
           <button class="dv-btn" id="dvExportar" type="button">Exportar mapeo</button>
-          <label class="dv-btn">Importar mapeo<input type="file" id="dvMapa" accept=".json" hidden></label>
+          <label class="dv-btn">Importar mapeo<input type="file" id="dvMapa" accept=".json,.zip" hidden></label>
           <button class="dv-btn" id="dvManifest" type="button">Exportar manifest</button>
           <button class="dv-btn" id="dvOrig" type="button">Ver originales</button>
           <label class="dv-btn" title="Usar una carpeta de texturas local en lugar de la web">Carpeta local<input type="file" id="dvTex" webkitdirectory directory multiple hidden></label>

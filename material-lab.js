@@ -55,7 +55,8 @@ function init(ctx) {
   }
   async function cargarArchivos(lista) {
     ++versionSeleccion;                                  // cancela una selección pendiente de FRIOX
-    const arr = [].slice.call(lista), glb = arr.find(f => /\.glb$/i.test(f.name)), js = arr.find(f => /\.json$/i.test(f.name));
+    const arr = [].slice.call(lista), glb = arr.find(f => /\.glb$/i.test(f.name)), js = arr.find(f => /\.json$/i.test(f.name)), zp = arr.find(f => /\.zip$/i.test(f.name));
+    if (!glb && zp) { try { await importarZip(zp); aviso('Mapeo importado'); } catch (e) { console.error(e); aviso('El .zip no es un mapeo válido'); } return; }
     if (!glb) {
       if (js) { try { importarJson(JSON.parse(await js.text())); aviso('Mapeo importado'); } catch (e) { aviso('El JSON no es válido'); } }
       else aviso('Arrastra un archivo .glb');
@@ -188,7 +189,25 @@ function init(ctx) {
   }
 
   const TABS = {
-    muestra: (e, s, r, lock) => '<p class="dv-note">Las muestras por slot llegan en la Parte 4.</p>',
+    muestra: (e, s, r, lock) => {
+      const v = s.variants[s.active], dis = lock ? ' disabled' : '', soloColor = MM.isColorOnly(r.rule), url = v.sample && mapa.sampleUrl(v.sample);
+      const modo = v.sample ? (soloColor ? 'color' : (v.sampleMode || 'texture')) : null;
+      let h = '<div class="dv-muestra' + (v.sample ? ' llena' : '') + '" data-drop>' +
+        (url ? '<img src="' + esc(url) + '" alt="Muestra del material">' : '<span>Arrastra aquí una foto del material<br><small>JPG, PNG o WebP</small></span>') + '</div>' +
+        '<div class="dv-row-actions" style="margin:8px 0 14px"><label class="dv-btn dv-primary"' + (lock ? ' aria-disabled="true"' : '') + '>' + (v.sample ? 'Cambiar imagen' : 'Elegir imagen') +
+        '<input type="file" data-f="sample" accept="image/jpeg,image/png,image/webp,.jpg,.jpeg,.png,.webp" hidden' + dis + '></label>' +
+        (v.sample ? '<button type="button" class="dv-btn" data-accion="quitar-muestra"' + dis + '>Quitar</button>' : '') + '</div>';
+      if (v.sample) {
+        h += '<div class="dv-field"><div class="dv-lbl">Usar la muestra</div><div class="dv-seg dos" role="tablist"><span class="pill" aria-hidden="true" style="transform:translateX(' + (modo === 'color' ? 100 : 0) + '%)"></span>' +
+          '<button type="button" role="tab" data-modo="texture" aria-selected="' + (modo === 'texture') + '"' + (soloColor || lock ? ' disabled' : '') + '>Como textura</button>' +
+          '<button type="button" role="tab" data-modo="color" aria-selected="' + (modo === 'color') + '"' + dis + '>Referencia de color</button></div>' +
+          (modo === 'color' ? '<div class="dv-color" style="margin-top:4px"><span class="dv-sw" style="width:28px;height:28px;border-radius:8px;background:' + esc(v.tint || '#808080') + '"></span><code>' + esc((v.tint || '').toUpperCase()) + '</code><span class="dv-note" style="margin:0">color dominante, sin luces ni sombras extremas</span></div>'
+            : '<p class="dv-note" style="margin:6px 0 0">Color base con repetición; respeta la escala y las UV aleatorias de Ajustes (' + (r.meters || 1).toFixed(2) + ' m por repetición).</p>') + '</div>';
+      }
+      if (soloColor) h += '<p class="dv-note">' + esc(r.rule.label) + ': solo acepta la muestra como referencia de color, para no perder ' + (r.rule.id === 'vidrio' ? 'la transparencia. El color se aplica a la transmisión.' : r.rule.id === 'emisivo' ? 'la emisión. El color se aplica a la luz.' : 'la reflexión.') + '</p>';
+      else if (!v.sample) h += '<p class="dv-note">La muestra pertenece solo a este slot (' + esc(nombreCorto(e)) + '), no al elemento completo.</p>';
+      return h;
+    },
     textura: (e, s, r, lock) => {
       const v = s.variants[s.active], dis = lock ? ' disabled' : '';
       const autoR = e.match.rule ? e.match.rule.label : 'sin regla';
@@ -276,6 +295,7 @@ function init(ctx) {
   Q('#dvDTabs').addEventListener('click', ev => { const b = ev.target.closest('button'); if (!b) return; ui.tab = b.dataset.t; renderDetalle(); });
   Q('#dvDBody').addEventListener('change', ev => {
     const t = ev.target, e = entrada(ui.sel); if (!e) return;
+    if (t.dataset.f === 'sample') { const f = t.files && t.files[0]; t.value = ''; if (f) ponerMuestra(f); return; }
     if (t.dataset.f === 'scale') escalaEnVivo(t, true);
     else if (t.dataset.f === 'rule') editar({ rule: t.value || null });
     else if (t.dataset.f === 'tint') editar({ tint: t.value });
@@ -287,10 +307,20 @@ function init(ctx) {
     mapa.updateVariant(e.name, mapa.slots[e.name].active, { tint: t.value }); ctx.redibujar();
     const c = t.parentNode.querySelector('code'); if (c) c.textContent = t.value.toUpperCase();
   });
+  /* soltar una imagen sobre el detalle: muestra del slot (no llega al visor) */
+  const det = Q('#dvDetalle'), esImagen = ev => [...(ev.dataTransfer && ev.dataTransfer.items || [])].some(i => i.kind === 'file' && /^image\//.test(i.type));
+  det.addEventListener('dragover', ev => { if (!esImagen(ev)) return; ev.preventDefault(); ev.stopPropagation(); det.classList.add('soltar'); });
+  det.addEventListener('dragleave', () => det.classList.remove('soltar'));
+  det.addEventListener('drop', ev => {
+    const f = ev.dataTransfer && [...ev.dataTransfer.files].find(x => /^image\/(jpeg|png|webp)$/.test(x.type)); det.classList.remove('soltar');
+    if (!f) return; ev.preventDefault(); ev.stopPropagation(); if (ui.tab !== 'muestra') { ui.tab = 'muestra'; renderDetalle(); } ponerMuestra(f);
+  });
   Q('#dvDBody').addEventListener('dblclick', ev => { const t = ev.target; if (t.dataset && t.dataset.f === 'scale' && !t.disabled) { t.value = 0; escalaEnVivo(t, true); } });
   Q('#dvDBody').addEventListener('click', async ev => {
     const b = ev.target.closest('button'); if (!b || b.disabled) return; const e = entrada(ui.sel); if (!e) return; const s = mapa.slots[e.name];
     if (b.dataset.tex !== undefined) return editar({ texture: b.dataset.tex || null });
+    if (b.dataset.modo) return modoMuestra(b.dataset.modo);
+    if (b.dataset.accion === 'quitar-muestra') { const v = s.variants[s.active]; return editar({ sample: null, sampleMode: null, tint: v.sampleMode === 'color' || MM.isColorOnly(e.result.rule) ? null : v.tint }); }
     if (b.dataset.f === 'randomUV') return editar({ randomUV: b.getAttribute('aria-checked') === 'true' ? null : true });
     if (b.dataset.ph) {
       const rule = e.result.rule, asset = (web.candidates[rule.id] || []).find(a => a.id === b.dataset.ph); b.classList.add('cargando');
@@ -367,6 +397,125 @@ function init(ctx) {
   Q('#dvMinIn').addEventListener('click', () => dvEstado(true, true));
   (function () { let m = true; try { m = localStorage.getItem('devPanel') !== 'open'; } catch (e) {} dvEstado(m, false); })();
 
+  /* ---- muestras: IndexedDB (desarrollo) + .zip con samples/ al exportar ---- */
+  const idb = {
+    db: null,
+    abrir() {
+      if (this.db) return this.db;
+      return (this.db = new Promise((ok, ko) => {
+        try { const r = indexedDB.open('toscano-material-lab', 1); r.onupgradeneeded = () => r.result.createObjectStore('samples'); r.onsuccess = () => ok(r.result); r.onerror = () => ko(r.error); }
+        catch (e) { ko(e); }
+      }));
+    },
+    async tx(modo, fn) { const d = await this.abrir(); return new Promise((ok, ko) => { const t = d.transaction('samples', modo), q = fn(t.objectStore('samples')); t.oncomplete = () => ok(q && q.result); t.onerror = () => ko(t.error); }); },
+    async guardar(k, blob) { try { await this.tx('readwrite', s => s.put(blob, k)); } catch (e) { console.warn('IndexedDB:', e); } },
+    async todas() {
+      try {
+        const d = await this.abrir();
+        return await new Promise((ok, ko) => { const out = [], c = d.transaction('samples').objectStore('samples').openCursor(); c.onsuccess = () => { const x = c.result; if (x) { out.push([x.key, x.value]); x.continue(); } else ok(out); }; c.onerror = () => ko(c.error); });
+      } catch (e) { console.warn('IndexedDB:', e); return []; }
+    },
+  };
+  const blobs = new Map();                         // 'samples/x.jpg' → Blob (para empaquetar al exportar)
+  function registrarMuestra(ref, blob) {
+    blobs.set(ref, blob);
+    if (mapa.sampleUrls[ref]) URL.revokeObjectURL(mapa.sampleUrls[ref]);
+    mapa.sampleUrls[ref] = URL.createObjectURL(blob);
+  }
+  /* Al abrir el laboratorio se recuperan las muestras guardadas en este navegador */
+  idb.todas().then(lista => {
+    if (!lista.length) return;
+    lista.forEach(([k, b]) => registrarMuestra(k, b));
+    if (mapa.sampleRefs().some(r => blobs.has(r))) { mapa.clearCache(); ctx.aplicarMapa(); render(); }
+  });
+  const slug = s => norm(s).replace(/\.[a-z0-9]+$/, '').replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 40) || 'muestra';
+  async function huella(blob) {
+    try { const d = await crypto.subtle.digest('SHA-1', await blob.arrayBuffer()); return [...new Uint8Array(d)].slice(0, 3).map(b => b.toString(16).padStart(2, '0')).join(''); }
+    catch (e) { return (blob.size >>> 0).toString(16).slice(-6); }
+  }
+  /* Color dominante: se dibuja reducida en un canvas y el promedio robusto lo calcula material-mapper.js */
+  function colorDeImagen(url) {
+    return new Promise((ok, ko) => {
+      const img = new Image(); img.onload = () => {
+        const k = Math.min(1, 96 / Math.max(img.naturalWidth, img.naturalHeight)), w = Math.max(1, Math.round(img.naturalWidth * k)), h = Math.max(1, Math.round(img.naturalHeight * k));
+        const c = document.createElement('canvas'); c.width = w; c.height = h; const g = c.getContext('2d', { willReadFrequently: true });
+        g.drawImage(img, 0, 0, w, h); ok(MM.dominantColor(g.getImageData(0, 0, w, h).data));
+      }; img.onerror = () => ko(new Error('No se pudo leer la imagen')); img.src = url;
+    });
+  }
+  async function ponerMuestra(file) {
+    const e = entrada(ui.sel); if (!e || ctx.ligado(e)) return;
+    if (!/^image\/(jpeg|png|webp)$/.test(file.type) && !/\.(jpe?g|png|webp)$/i.test(file.name)) { aviso('Usa una imagen JPG, PNG o WebP'); return; }
+    const ext = (file.name.match(/\.(jpe?g|png|webp)$/i) || ['', 'jpg'])[1].toLowerCase().replace('jpeg', 'jpg');
+    const ref = 'samples/' + slug(file.name) + '-' + await huella(file) + '.' + ext;
+    registrarMuestra(ref, file); idb.guardar(ref, file);
+    const rule = e.result && e.result.rule, soloColor = MM.isColorOnly(rule);
+    const v = mapa.activeVariant(e.name), modo = soloColor ? 'color' : (v.sampleMode || 'texture');
+    const patch = { sample: ref, sampleMode: modo, tint: null };
+    if (modo === 'color') patch.tint = await colorDeImagen(mapa.sampleUrl(ref));
+    editar(patch);
+    aviso(soloColor ? 'Muestra aplicada como referencia de color' : 'Muestra aplicada');
+  }
+  async function modoMuestra(modo) {
+    const e = entrada(ui.sel); if (!e) return; const v = mapa.activeVariant(e.name); if (!v.sample) return;
+    if (modo === 'texture' && MM.isColorOnly(e.result.rule)) return aviso('Vidrio, espejo, agua y luz solo aceptan referencia de color');
+    editar({ sampleMode: modo, tint: modo === 'color' ? await colorDeImagen(mapa.sampleUrl(v.sample)) : null });
+  }
+
+  /* ---- .zip mínimo (sin compresión al escribir; lee «store» y «deflate») ---- */
+  const CRC = (() => { const t = new Uint32Array(256); for (let n = 0; n < 256; n++) { let c = n; for (let k = 0; k < 8; k++) c = c & 1 ? 0xEDB88320 ^ (c >>> 1) : c >>> 1; t[n] = c >>> 0; } return t; })();
+  const crc32 = u8 => { let c = 0xFFFFFFFF; for (let i = 0; i < u8.length; i++) c = CRC[(c ^ u8[i]) & 255] ^ (c >>> 8); return (c ^ 0xFFFFFFFF) >>> 0; };
+  async function zip(files) {                      // files: [{ name, data: Uint8Array }]
+    const enc = new TextEncoder(), partes = [], central = []; let off = 0;
+    for (const f of files) {
+      const nb = enc.encode(f.name), crc = crc32(f.data), h = new DataView(new ArrayBuffer(30));
+      h.setUint32(0, 0x04034b50, true); h.setUint16(4, 20, true); h.setUint16(6, 0x0800, true); h.setUint16(8, 0, true);
+      h.setUint32(14, crc, true); h.setUint32(18, f.data.length, true); h.setUint32(22, f.data.length, true); h.setUint16(26, nb.length, true);
+      partes.push(new Uint8Array(h.buffer), nb, f.data);
+      const c = new DataView(new ArrayBuffer(46));
+      c.setUint32(0, 0x02014b50, true); c.setUint16(4, 20, true); c.setUint16(6, 20, true); c.setUint16(8, 0x0800, true);
+      c.setUint32(16, crc, true); c.setUint32(20, f.data.length, true); c.setUint32(24, f.data.length, true); c.setUint16(28, nb.length, true); c.setUint32(42, off, true);
+      central.push(new Uint8Array(c.buffer), nb);
+      off += 30 + nb.length + f.data.length;
+    }
+    const tam = central.reduce((n, p) => n + p.length, 0), fin = new DataView(new ArrayBuffer(22));
+    fin.setUint32(0, 0x06054b50, true); fin.setUint16(8, files.length, true); fin.setUint16(10, files.length, true); fin.setUint32(12, tam, true); fin.setUint32(16, off, true);
+    return new Blob([...partes, ...central, new Uint8Array(fin.buffer)], { type: 'application/zip' });
+  }
+  async function unzip(buf) {                      // → Map(nombre → Uint8Array)
+    const dv = new DataView(buf), u8 = new Uint8Array(buf), dec = new TextDecoder(), out = new Map();
+    let e = buf.byteLength - 22; while (e >= 0 && dv.getUint32(e, true) !== 0x06054b50) e--;
+    if (e < 0) throw new Error('No es un .zip válido');
+    let p = dv.getUint32(e + 16, true); const n = dv.getUint16(e + 10, true);
+    for (let i = 0; i < n; i++) {
+      const met = dv.getUint16(p + 10, true), csz = dv.getUint32(p + 20, true), ln = dv.getUint16(p + 28, true), lx = dv.getUint16(p + 30, true), lc = dv.getUint16(p + 32, true), lo = dv.getUint32(p + 42, true);
+      const nombre = dec.decode(u8.subarray(p + 46, p + 46 + ln)); p += 46 + ln + lx + lc;
+      if (nombre.endsWith('/')) continue;
+      const ini = lo + 30 + dv.getUint16(lo + 26, true) + dv.getUint16(lo + 28, true), datos = u8.slice(ini, ini + csz);
+      if (met === 0) out.set(nombre, datos);
+      else if (met === 8 && typeof DecompressionStream === 'function') out.set(nombre, new Uint8Array(await new Response(new Blob([datos]).stream().pipeThrough(new DecompressionStream('deflate-raw'))).arrayBuffer()));
+      else console.warn('zip: método no soportado en', nombre);
+    }
+    return out;
+  }
+  const tipoImg = n => /\.png$/i.test(n) ? 'image/png' : /\.webp$/i.test(n) ? 'image/webp' : 'image/jpeg';
+  async function exportarMapeo() {
+    const j = mapa.exportMapping(ctx.nombre), base = nombreArchivo(), refs = mapa.sampleRefs();
+    if (!refs.length) return bajar(j, base + '.materials.json');
+    const faltan = refs.filter(r => !blobs.has(r));
+    const files = [{ name: base + '.materials.json', data: new TextEncoder().encode(JSON.stringify(j, null, 2)) }];
+    for (const r of refs) if (blobs.has(r)) files.push({ name: r, data: new Uint8Array(await blobs.get(r).arrayBuffer()) });
+    bajarBlob(await zip(files), base + '.materials.zip');
+    aviso(faltan.length ? 'Exportado; faltan ' + faltan.length + ' muestras que no están en este navegador' : 'Mapeo exportado con ' + refs.length + ' muestra' + (refs.length > 1 ? 's' : ''));
+  }
+  async function importarZip(file) {
+    const m = await unzip(await file.arrayBuffer());
+    const nj = [...m.keys()].find(k => /\.json$/i.test(k) && !k.includes('/'));
+    if (!nj) throw new Error('El .zip no trae el .materials.json');
+    for (const [k, d] of m) if (/^samples\/.+\.(jpe?g|png|webp)$/i.test(k)) { const b = new Blob([d], { type: tipoImg(k) }); registrarMuestra(k, b); idb.guardar(k, b); }
+    importarJson(JSON.parse(new TextDecoder().decode(m.get(nj))));
+  }
+
   /* ---- opciones, exportación, carpeta local ---- */
   Q('#dvUV').addEventListener('change', e => { mapa.uvMode = e.target.value; ejecutar(); });
   Q('#dvTex').addEventListener('change', e => {
@@ -380,10 +529,10 @@ function init(ctx) {
     ejecutar();
   }
   const nombreArchivo = () => (ctx.nombre.replace(/\.glb$/i, '') || 'modelo').replace(/\s+/g, '-').toLowerCase();
-  Q('#dvExportar').addEventListener('click', () => bajar(mapa.exportMapping(ctx.nombre), nombreArchivo() + '.materials.json'));
+  Q('#dvExportar').addEventListener('click', () => exportarMapeo().catch(err => { console.error(err); aviso('No se pudo exportar (' + (err.message || err) + ')'); }));
   Q('#dvMapa').addEventListener('change', async e => {
     const f = e.target.files[0]; e.target.value = ''; if (!f) return;
-    try { importarJson(JSON.parse(await f.text())); aviso('Mapeo importado'); } catch (err) { console.error(err); aviso('El archivo no es un mapeo válido'); }
+    try { if (/\.zip$/i.test(f.name)) await importarZip(f); else importarJson(JSON.parse(await f.text())); aviso('Mapeo importado'); } catch (err) { console.error(err); aviso('El archivo no es un mapeo válido'); }
   });
   Q('#dvManifest').addEventListener('click', () => { if (!mapa.library.length) return aviso('Primero elige una carpeta de texturas'); bajar(MM.exportManifest(mapa.library), 'textures.manifest.json'); });
   Q('#dvOrig').addEventListener('click', () => { ctx.original = !ctx.original; if (ctx.original) mapa.restore(); else mapa.apply(); ctx.redibujar(); Q('#dvOrig').textContent = ctx.original ? 'Ver asignados' : 'Ver originales'; });
@@ -431,7 +580,7 @@ function init(ctx) {
   });
 
   mapa.analyze(ctx.raicesBase); refrescarPanel();
-  root.__dev = { mapa, MM, ponerModelo: ctx.ponerModelo, escenaPrueba, ejecutar, ponerBase: ctx.ponerBase, cargarArchivos, aviso, abrirDetalle, elegirEnVisor, ui, ctx };
+  root.__dev = { mapa, MM, ponerModelo: ctx.ponerModelo, escenaPrueba, ejecutar, ponerBase: ctx.ponerBase, cargarArchivos, aviso, abrirDetalle, elegirEnVisor, ui, ctx, exportarMapeo, importarZip, unzip };
   /* Deja que se pinte primero el Modelo base; precarga FRIOX sin mostrarlo */
   if (ctx.precargarFriox) requestAnimationFrame(() => setTimeout(() => precargarFriox().catch(err => console.warn('FRIOX no disponible para precarga:', err)), 100));
 

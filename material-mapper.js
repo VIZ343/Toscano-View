@@ -505,6 +505,26 @@ const setMat = (mesh, slot, mat) => {
   if (Array.isArray(mesh.material)) mesh.material[slot] = mat; else mesh.material = mat;
 };
 
+/* Color dominante de una muestra (promedio robusto). `rgba` son los píxeles (Uint8ClampedArray de un canvas).
+   Descarta el 15 % más oscuro y el 15 % más claro (sombras y brillos) y promedia el resto en espacio lineal. */
+function dominantColor(rgba, trim = .15) {
+  const toLin = c => { c /= 255; return c <= .04045 ? c / 12.92 : Math.pow((c + .055) / 1.055, 2.4); };
+  const toSrgb = c => { c = c <= .0031308 ? c * 12.92 : 1.055 * Math.pow(c, 1 / 2.4) - .055; return Math.round(Math.min(1, Math.max(0, c)) * 255); };
+  const px = [];
+  const step = Math.max(1, Math.floor(rgba.length / 4 / 20000)) * 4;   // hasta ~20 000 píxeles
+  for (let i = 0; i < rgba.length; i += step) {
+    if (rgba[i + 3] < 128) continue;                                    // transparente
+    const r = toLin(rgba[i]), g = toLin(rgba[i + 1]), b = toLin(rgba[i + 2]);
+    px.push([.2126 * r + .7152 * g + .0722 * b, r, g, b]);
+  }
+  if (!px.length) return '#808080';
+  px.sort((a, b) => a[0] - b[0]);
+  const a = Math.floor(px.length * trim), z = Math.max(a + 1, Math.ceil(px.length * (1 - trim)));
+  let r = 0, g = 0, b = 0, n = 0;
+  for (let i = a; i < z; i++) { r += px[i][1]; g += px[i][2]; b += px[i][3]; n++; }
+  return '#' + [r / n, g / n, b / n].map(c => toSrgb(c).toString(16).padStart(2, '0')).join('');
+}
+
 /* Grupos de la lista maestra (categoría de Revit → grupo en español) */
 const CATEGORY_GROUPS = [
   ['Muros', ['walls', 'muros', 'wall sweeps', 'curtain panels', 'paneles de muro cortina', 'muro cortina']],
@@ -658,7 +678,7 @@ class MaterialMapper {
     else tex = rule && rule.id in this.ruleTex ? this.ruleTex[rule.id] : resolveTexture(rule, this.library);
     const scale = v.scale > 0 ? v.scale : 1;
     const baseScale = (tex && tex.scale) || rule?.scale || 1;          // metros por repetición (real)
-    const tint = v.tint || (tex && rule ? this.ruleTint[rule.id] : null) || null;
+    const tint = v.tint || (tex && rule && tex.source !== 'sample' ? this.ruleTint[rule.id] : null) || null;   // el tono del perfil no tiñe fotos
     const source = variantIsManual(v) ? 'manual' : rule ? 'auto' : 'none';
     return { rule, tex, tint, color: null, scale, baseScale, meters: baseScale * scale, rep: 1 / (baseScale * scale),
       randomUV: !!v.randomUV, sampleMode, keepOriginal, colorOnly, source };
@@ -780,6 +800,13 @@ class MaterialMapper {
     }
     c.sourceMaterials = c.sourceMaterials.size;
     return c;
+  }
+
+  /* Muestras («samples/…») que usan las variantes de los slots del modelo */
+  sampleRefs() {
+    const out = new Set();
+    for (const e of this.entries) Object.values(this.slots[e.name]?.variants || {}).forEach(v => { if (v.sample) out.add(v.sample); });
+    return [...out];
   }
 
   /* ---------- Mapeo (version 2) ---------- */
@@ -1121,7 +1148,7 @@ function searchTextures(catalog, profileId, ruleId, limit = 6) {
 /* DEV:END */
 
 const API = { MaterialMapper, DEFAULT_RULES, resolveTexture, norm, CFG, setAntiTile, HOOKS: MM_HOOKS, GROUP_ORDER,
-  isColorOnly, variantIsManual, polyHavenTexture };
+  isColorOnly, variantIsManual, polyHavenTexture, dominantColor };
 /* DEV:START */
 Object.assign(API, { PROFILES, TONES, profileTint, libraryFromFiles, libraryFromManifest, exportManifest, loadPolyHavenCatalog, searchTextures });
 /* DEV:END */
