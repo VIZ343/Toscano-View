@@ -1,0 +1,51 @@
+TOSCANO-VIEW | Actualizacion DEV + FRIOX (12-11-2026)
+====================================================
+
+ARCHIVO MODIFICADO EN GITHUB
+- index.html (unico archivo que hace commit)
+
+NO SE REEMPLAZAN
+- FRIOX_ligero.glb (40 MB aprox.)
+- FRIOX_ligero.materials.json
+- netlify.toml
+- Otros archivos o modelos del proyecto
+
+COMPORTAMIENTO
+1. Al abrir la pagina, el Modelo base procedural es visible de inmediato.
+2. Material Lab esta colapsado inicialmente y su pestana queda visible a la izquierda.
+   Si el usuario ya lo habia dejado abierto, puede recuperarse esa preferencia.
+3. En segundo plano, el navegador descarga FRIOX_ligero.glb desde la misma
+   carpeta que index.html, lo interpreta y lo deja listo sin mostrarlo.
+4. El boton "Escena de prueba - FRIOX" activa el modelo preparado.
+   Si se pulsa antes de completar la carga, espera a que termine.
+5. "Modelo base" devuelve la visualizacion original.
+6. Se aplican automaticamente los materiales de FRIOX_ligero.materials.json.
+7. Nunca se muestra la escena demostrativa sintetica al finalizar la carga.
+
+PUBLICACION SIN POWERSHELL
+- Extrae el ZIP en una carpeta de Windows.
+- Ejecuta actualizar_github.bat con doble clic, o desde CMD en VS Code.
+- El BAT clona GitHub a una carpeta temporal, verifica los assets,
+  reemplaza solamente index.html, y envia el commit a main.
+- Con GitHub enlazado a Netlify, Netlify ejecutara el despliegue automatico.
+
+REQUISITOS
+- Git for Windows y acceso de escritura a VIZ343/Toscano-View.
+- La rama main debe existir; usuario Git configurado para commits.
+- Los archivos FRIOX_ligero.glb y FRIOX_ligero.materials.json ya deben estar
+  en la raiz del repositorio (el BAT los verifica).
+- La pagina publicada necesita conectividad para obtener Three.js y los
+  cargadores externos que ya usaba el HTML anterior.
+
+VALIDACION
+- Se comprobó sintaxis del script JS mediante node --check.
+- Se comprobo en Chromium que la pestana de Material Lab permanece dentro de
+  la pantalla, en desktop (1440x900) y mobile (390x844), aun colapsado.
+- No se realizo una prueba 3D GPU completa: los recursos CDN externos no
+  estaban disponibles en este entorno de pruebas.
+
+IMPORTANTE
+- El modo DEV deja accesibles herramientas de importacion, exportacion y
+  consulta de Poly Haven en el sitio publicado. Desactiva DEV_MODE si deseas
+  compartir una version final sin controles de desarrollo.
+- Este ZIP es incremental; no incluye el GLB porque ya esta publicado.
