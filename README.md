@@ -4,13 +4,32 @@ Proyecto web estatico Three.js / WebGL de Corporativo Toscano, con modelo FRIOX 
 
 ## Estructura
 
-- `index.html`: pagina principal. No usa Node ni requiere compilacion.
+- `index.html`: pagina principal. No usa Node ni requiere compilacion. Carga `material-mapper.js` y, en desarrollo, `material-lab.js` (deben publicarse junto a ella).
 - `FRIOX_ligero.glb`: modelo 3D de aproximadamente 40 MB.
 - `FRIOX_ligero.materials.json`: mapeo asociado automaticamente a `FRIOX_ligero.glb`.
 - `friox_optimizado_max.materials.json`: mapeo original conservado como referencia.
 - `netlify.toml`: publicacion de la raiz (`.`) sin build command.
 - `publicar_github.bat`: inicializa Git, confirma archivos y hace push a `VIZ343/Toscano-View` desde CMD, sin usar PowerShell.
 - `.gitignore`: excluye archivos temporales y secretos locales.
+
+## Material Lab v5
+
+- `material-mapper.js`: lógica de materiales (sin DOM, three.js r128 global). Expone `window.MM`; la instancia del visor queda en `window.materialMapper`.
+- `material-lab.js`: panel de desarrollo. Solo se inicia con `DEV_MODE = true` en `index.html`.
+- Cada grupo de materiales es un **slot** con variantes (`v1` = automática). Cada variante puede cambiar regla, textura, tinte, escala (0.25×–4×), UV aleatorias y muestra (como textura o como referencia de color; vidrio, espejo, agua y luz solo como color).
+- Sin muestra, textura ni referencia, el slot toma el color de su rol en la paleta neutra (principal, secundario, variación).
+- **Mapeo `version: 2`** (`<modelo>.materials.json`): slots, variantes, conjuntos (`sets`), paleta, tonos y texturas. Si hay muestras, «Exportar mapeo» genera un `.zip` con el JSON y la carpeta `samples/`; descomprímelo junto a `index.html`. Los mapeos `version: 1` se siguen leyendo (sus anulaciones manuales pasan a variantes).
+- En la versión para compartir, un mapeo v2 aplica el estado completo del laboratorio; uno v1 solo aplica lo manual, como antes.
+
+API de variantes (también con `DEV_MODE = false`):
+
+```js
+materialMapper.getSlots();                         // [{ slotId, label, role, active, variants }]
+materialMapper.addVariant(slotId, { name, rule, texture, tint, scale, randomUV, costRef });
+materialMapper.setVariant(slotId, variantId);      // en vivo, sin recargar
+materialMapper.saveSet('Insignia'); materialMapper.applySet('Insignia');
+window.addEventListener('materialvariantchange', e => console.log(e.detail)); // { slotId, variantId, set, costRef, changes? }
+```
 
 ## Publicar en GitHub (cuenta VIZ343)
 

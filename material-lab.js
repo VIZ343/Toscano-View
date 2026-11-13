@@ -600,7 +600,7 @@ function init(ctx) {
     try { ponerTex(id, await MM.polyHavenTexture(asset, web.res)); ejecutar(); } catch (err) { aviso('No se pudo descargar ' + asset.id); b.style.opacity = 1; }
   });
 
-  mapa.analyze(ctx.raicesBase); refrescarPanel();
+  mapa.analyze(ctx.raicesBase); ctx.aplicarMapa(); refrescarPanel();   // en el modelo base solo se aplica lo manual (acepta)
   root.__dev = { mapa, MM, ponerModelo: ctx.ponerModelo, escenaPrueba, ejecutar, ponerBase: ctx.ponerBase, cargarArchivos, aviso, abrirDetalle, elegirEnVisor, ui, ctx, exportarMapeo, importarZip, unzip };
   /* Deja que se pinte primero el Modelo base; precarga FRIOX sin mostrarlo */
   if (ctx.precargarFriox) requestAnimationFrame(() => setTimeout(() => precargarFriox().catch(err => console.warn('FRIOX no disponible para precarga:', err)), 100));

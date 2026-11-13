@@ -1492,6 +1492,8 @@ function iniciar3D(){
      materiales que controla la tabla de presupuesto (muro, piso, piso noble) no se tocan. */
   MM.CFG.aniso=aniso;MM.CFG.webgl2=!!renderer.capabilities.isWebGL2;
   const mapa=new MM.MaterialMapper({uvMode:'box'});
+  /* API pública de variantes (ver material-mapper.js): materialMapper.getSlots(), setVariant(), applySet()… y el evento «materialvariantchange» */
+  window.materialMapper=mapa;
   const raicesBase=scene.children.filter(o=>!o.isLight&&o!==cielo&&o!==sol.target);
   const ligado=e=>e.uses.every(u=>u.original&&u.original.userData&&u.original.userData.protegido);
   let esBase=true;
@@ -1601,7 +1603,8 @@ function iniciar3D(){
       est.hidden=false;est.textContent='Cargando modelo…';
       const par=await Promise.all([descargarConProgreso(MODELO_URL,(n,t)=>{est.textContent='Cargando modelo… '+(t?Math.round(n*100/t)+' %':Math.round(n/1048576)+' MB');}),mapeoExterno(MODELO_URL.replace(/\.glb$/i,''))]);
       est.textContent='Preparando modelo…';
-      await abrirGLB(par[0],MODELO_TITULO||MODELO_URL,par[1],{soloManual:true,titulo:MODELO_TITULO,ocultarPresupuesto:MODELO_OCULTA_PRESUPUESTO});
+      /* mapeo v2 (exportado del laboratorio): estado completo; v1: solo lo manual, como antes */
+      await abrirGLB(par[0],MODELO_TITULO||MODELO_URL,par[1],{soloManual:!(par[1]&&par[1].version>=2),titulo:MODELO_TITULO,ocultarPresupuesto:MODELO_OCULTA_PRESUPUESTO});
       est.hidden=true;
     }catch(err){if(window.console)console.warn(err);est.textContent='No se pudo cargar el modelo; se muestra el modelo base';setTimeout(()=>{est.hidden=true;},5000);}}
   if(MODELO_URL)cargarModeloPublico();

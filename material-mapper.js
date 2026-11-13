@@ -946,13 +946,36 @@ class MaterialMapper {
     if (this.entries.length) this._ensureSlots();
   }
 
-  /* ---------- API de variantes ---------- */
+  /* ---------- API de variantes ----------
+     Pensada para conectarse desde fuera (p. ej. los escenarios del panel de presupuesto). No depende del DOM
+     ni de DEV_MODE. Los cambios son en vivo: no recargan el modelo y reutilizan el caché de materiales.
 
-  /** @returns {{slotId:string,label:string,role:string|null,active:string,variants:Array<{id:string}&Object>}[]} */
+     @typedef {Object} Variant
+     @property {string}  [name]        nombre visible
+     @property {string}  [rule]        id de regla (otro material) o '__none' = material original
+     @property {string}  [texture]     id de textura de la biblioteca ('ph:…' se descarga si falta) o '__none' = procedural
+     @property {string}  [tint]        '#rrggbb' (referencia de color)
+     @property {number}  [scale]       multiplicador de la escala real (0.25–4)
+     @property {boolean} [randomUV]    UV aleatorias por pieza
+     @property {string}  [sample]      'samples/archivo.jpg'
+     @property {'texture'|'color'} [sampleMode]
+     @property {string}  [costRef]     partida del presupuesto (solo viaja en el evento)
+
+     @typedef {Object} SlotInfo
+     @property {string} slotId  @property {string} label
+     @property {'principal'|'secundario'|'variacion'} role  @property {string} active
+     @property {Array<Variant & {id:string}>} variants
+
+     Evento global: window.addEventListener('materialvariantchange', e => e.detail)
+       setVariant / removeVariant → { slotId, variantId, set: null, costRef }
+       applySet                   → { slotId: null, variantId: null, set, costRef: null, changes: [{ slotId, variantId, costRef }] }
+  */
+
+  /** Lista de slots del modelo con su rol efectivo, variante activa y variantes. @returns {SlotInfo[]} */
   getSlots() {
     return this.entries.filter(e => this.slots[e.name]).map(e => {
       const s = this.slots[e.name];
-      return { slotId: e.name, label: s.label, role: s.role ?? null, active: s.active, variants: this.getVariants(e.name) };
+      return { slotId: e.name, label: s.label, role: this.roleOf(e.name), active: s.active, variants: this.getVariants(e.name) };
     });
   }
   /** Variantes de un slot. @param {string} slotId @returns {Array<{id:string}&Object>} */
