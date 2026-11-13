@@ -215,8 +215,17 @@ function init(ctx) {
     ajustes: (e, s, r, lock) => {
       const v = s.variants[s.active], dis = lock ? ' disabled' : '';
       const col = v.tint || (e.mat ? hex(e.mat.color) : '#cccccc');
-      return '<div class="dv-field"><div class="dv-lbl">Tinte' + (v.tint ? '' : ' <b>heredado</b>') + '</div><div class="dv-color"><input type="color" data-f="tint" value="' + esc(col) + '"' + dis + '><code>' + esc(col.toUpperCase()) + '</code>' +
+      const conTex = !!r.tex, t = escalaASlider(r.scale || 1);
+      let h = '<div class="dv-field"><div class="dv-lbl">Escala de textura <b id="dvEscM">' + (conTex ? metros(r) : 'sin textura') + '</b></div>' +
+        (conTex ? '<div class="dv-range" style="' + rangoVars(t) + '"><input type="range" data-f="scale" min="-1000" max="1000" step="1" value="' + t + '" aria-label="Escala de textura"' + dis + '>' +
+          '<div class="marcas" aria-hidden="true"><i>0.25×</i><i>1×</i><i>4×</i></div><div class="dv-bubble" id="dvEscB">' + escTxt(r.scale || 1) + '</div></div>' +
+          '<p class="dv-note" style="margin:0">Multiplica la escala real (' + (r.baseScale || 1).toFixed(2) + ' m' + (r.tex && r.tex.source === 'polyhaven' ? ', medida de Poly Haven' : r.tex && r.tex.scale ? ', de la textura' : ', de la regla') + '). Doble clic: 1×.</p>'
+          : '<p class="dv-note" style="margin:0">El material de este slot no usa textura; la escala aplica cuando tenga una textura o una muestra como textura.</p>') + '</div>';
+      h += '<div class="dv-field"><div class="dv-swrow"><div><div class="dv-lbl" style="margin:0 0 2px">UV aleatorias</div><p class="dv-note" style="margin:0">Desplaza y gira (0°, 90°, 180°, 270°) la textura en cada pieza para que las repetidas no se vean idénticas. La variación es fija por pieza.</p></div>' +
+        '<button type="button" class="dv-switch" role="switch" data-f="randomUV" aria-checked="' + !!v.randomUV + '" aria-label="UV aleatorias"' + (lock || !conTex ? ' disabled' : '') + '></button></div></div>';
+      h += '<div class="dv-field"><div class="dv-lbl">Tinte' + (v.tint ? '' : ' <b>heredado</b>') + '</div><div class="dv-color"><input type="color" data-f="tint" value="' + esc(col) + '"' + dis + '><code>' + esc(col.toUpperCase()) + '</code>' +
         (v.tint ? '<button type="button" class="dv-btn" data-accion="sin-tinte"' + dis + '>Quitar</button>' : '') + '</div></div>';
+      return h;
     },
     variantes: (e, s, r, lock) => {
       const ids = Object.keys(s.variants), dis = lock ? ' disabled' : '';
@@ -229,6 +238,25 @@ function init(ctx) {
         '<div class="dv-row-actions"><button type="button" class="dv-btn" data-accion="duplicar"' + dis + '>Duplicar activa</button><button type="button" class="dv-btn" data-accion="nueva"' + dis + '>Nueva automática</button></div>';
     },
   };
+
+  /* Escala: slider logarítmico −1000…1000 ↔ 0.25×…4× (1× al centro) */
+  const sliderAEscala = t => Math.pow(4, t / 1000);
+  const escalaASlider = s => Math.round(Math.log(s) / Math.log(4) * 1000);
+  const escTxt = s => (s >= 1 ? s.toFixed(2) : s.toFixed(3).replace(/0$/, '')) + '×';
+  const metros = r => r.meters.toFixed(2) + ' m por repetición';
+  const rangoVars = t => '--p:' + ((t + 1000) / 20).toFixed(2) + '%;--pn:' + ((t + 1000) / 2000).toFixed(4);
+  function escalaEnVivo(input, soltar) {
+    const e = entrada(ui.sel); if (!e) return;
+    let t = +input.value; if (Math.abs(t) < 18) { t = 0; input.value = 0; }      // imán en 1×
+    const sc = sliderAEscala(t);
+    mapa.previewScale(e.name, sc);
+    if (soltar) mapa.commitScale(e.name);
+    input.parentNode.setAttribute('style', rangoVars(t));
+    const r = e.result, b = Q('#dvEscB'), m = Q('#dvEscM');
+    if (b) b.textContent = escTxt(sc); if (m) m.textContent = metros(r);
+    ctx.redibujar();
+    if (soltar) { renderStats(); renderMaster(); }
+  }
 
   /* edición: todo cambia la variante activa del slot */
   const editar = patch => { const e = entrada(ui.sel); if (!e) return; mapa.updateVariant(e.name, mapa.slots[e.name].active, patch); actualizado(); };
@@ -248,18 +276,22 @@ function init(ctx) {
   Q('#dvDTabs').addEventListener('click', ev => { const b = ev.target.closest('button'); if (!b) return; ui.tab = b.dataset.t; renderDetalle(); });
   Q('#dvDBody').addEventListener('change', ev => {
     const t = ev.target, e = entrada(ui.sel); if (!e) return;
-    if (t.dataset.f === 'rule') editar({ rule: t.value || null });
+    if (t.dataset.f === 'scale') escalaEnVivo(t, true);
+    else if (t.dataset.f === 'rule') editar({ rule: t.value || null });
     else if (t.dataset.f === 'tint') editar({ tint: t.value });
     else if (t.dataset.vf) { const v = t.closest('.dv-vrow').dataset.v; mapa.updateVariant(e.name, v, { [t.dataset.vf]: t.value.trim() || null }); renderDetalle(); }
   });
   Q('#dvDBody').addEventListener('input', ev => {          // tinte en vivo mientras se arrastra el selector
-    const t = ev.target; if (t.dataset.f !== 'tint') return; const e = entrada(ui.sel); if (!e) return;
+    const t = ev.target; if (t.dataset.f === 'scale') return escalaEnVivo(t, false);
+    if (t.dataset.f !== 'tint') return; const e = entrada(ui.sel); if (!e) return;
     mapa.updateVariant(e.name, mapa.slots[e.name].active, { tint: t.value }); ctx.redibujar();
     const c = t.parentNode.querySelector('code'); if (c) c.textContent = t.value.toUpperCase();
   });
+  Q('#dvDBody').addEventListener('dblclick', ev => { const t = ev.target; if (t.dataset && t.dataset.f === 'scale' && !t.disabled) { t.value = 0; escalaEnVivo(t, true); } });
   Q('#dvDBody').addEventListener('click', async ev => {
     const b = ev.target.closest('button'); if (!b || b.disabled) return; const e = entrada(ui.sel); if (!e) return; const s = mapa.slots[e.name];
     if (b.dataset.tex !== undefined) return editar({ texture: b.dataset.tex || null });
+    if (b.dataset.f === 'randomUV') return editar({ randomUV: b.getAttribute('aria-checked') === 'true' ? null : true });
     if (b.dataset.ph) {
       const rule = e.result.rule, asset = (web.candidates[rule.id] || []).find(a => a.id === b.dataset.ph); b.classList.add('cargando');
       try { const t = await MM.polyHavenTexture(asset, web.res); if (!mapa.findTexture(t.id)) mapa.library.push(t); editar({ texture: t.id }); }

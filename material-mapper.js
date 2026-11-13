@@ -689,12 +689,13 @@ class MaterialMapper {
     for (const u of e.uses) {
       if (r.tex) {
         let seed = null;
-        if (r.randomUV) {
+        if (r.randomUV || CFG.randUV) {                // por slot (variante) o global («Variar UV por objeto»)
           seed = this.pieceSeed(u.mesh);
           // la geometría compartida entre piezas se clona para que cada una tenga su propia UV
           if ((this.geoUsers.get(u.mesh.geometry) || 0) > 1 && !u.mesh.userData.__mmOwnGeo) {
             const g0 = u.mesh.geometry; this.geoUsers.set(g0, this.geoUsers.get(g0) - 1);
-            u.mesh.geometry = g0.clone(); u.mesh.userData.__mmOwnGeo = true; this.geoUsers.set(u.mesh.geometry, 1);
+            const g1 = g0.clone(); g1.userData = { ...g0.userData };
+            u.mesh.geometry = g1; u.mesh.userData.__mmOwnGeo = true; this.geoUsers.set(g1, 1);
           }
         }
         prepareUV(u.mesh, this.uvMode, seed);
@@ -709,7 +710,53 @@ class MaterialMapper {
     return this.report();
   }
   /* Vuelve a aplicar solo algunos slots (cambios en vivo) */
-  applySlots(ids) { for (const id of [].concat(ids)) { const e = this.byName?.get(id); if (e) this._applyEntry(e); } }
+  applySlots(ids) { for (const id of [].concat(ids)) { const e = this.byName?.get(id); if (e) this._applyEntry(e); } this._gc(); }
+
+  /**
+   * Escala en vivo (slider): cambia la escala de la variante activa y solo `texture.repeat` del material,
+   * sin recrearlo. Si el material lo comparten otros slots, este slot recibe una copia propia una sola vez.
+   * Al soltar el slider llama commitScale().
+   */
+  previewScale(slotId, scale) {
+    const s = this.slots[slotId], e = this.byName?.get(slotId); if (!s || !e) return false;
+    const v = s.variants[s.active];
+    if (Math.abs(scale - 1) < 1e-4) delete v.scale; else v.scale = +scale.toFixed(4);
+    const r = this.resolve(e);
+    const M = e.mat;
+    if (!M || !r.tex || !M.map) { this._applyEntry(e); return true; }
+    let mat = M;
+    if (this.entries.some(o => o !== e && o.mat === M)) {
+      mat = M.clone(); mat.userData = { mmKey: null, ownTex: false };
+      patchNoTile(mat); made.push(mat);
+      e.mat = mat; e.uses.forEach(u => setMat(u.mesh, u.slot, mat));
+    } else if (this.cache.get(M.userData.mmKey) === M) this.cache.delete(M.userData.mmKey);
+    setMaterialRepeat(mat, r.rep);
+    mat.userData.mmKey = null;
+    e.result = r;
+    return true;
+  }
+  /** Termina un cambio de escala: el material queda en el caché con su clave nueva (o se reutiliza uno igual). */
+  commitScale(slotId) {
+    const e = this.byName?.get(slotId); if (!e || !e.mat) return;
+    const r = this.resolve(e), key = this._key(r), M = e.mat;
+    if (M.userData.mmKey === key) return;
+    const prev = this.cache.get(key);
+    if (prev && prev !== M) { e.mat = prev; e.uses.forEach(u => setMat(u.mesh, u.slot, prev)); }
+    else { M.userData.mmKey = key; this.cache.set(key, M); }
+    this._gc();
+  }
+  /* Libera materiales que ya no usa ningún slot ni están en el caché */
+  _gc() {
+    const used = new Set(this.entries.map(e => e.mat).filter(Boolean));
+    for (let i = made.length - 1; i >= 0; i--) {
+      const m = made[i];
+      if (!used.has(m) && this.cache.get(m.userData.mmKey) !== m) {
+        made.splice(i, 1);
+        if (m.userData.ownTex) TEX_SLOTS.forEach(k => { if (m[k] && !used.has(m)) m[k].dispose(); });
+        m.dispose();
+      }
+    }
+  }
 
   /* Reglas en uso, ordenadas por número de objetos (los materiales más utilizados del modelo) */
   usedRules() {
