@@ -346,66 +346,77 @@ h1{margin:8px 0 10px;font-family:var(--display);font-weight:400;font-size:32px;f
 .dragging .dv-drop{opacity:1}
 .dv-toast{position:absolute;z-index:15;left:50%;top:16px;transform:translate(-50%,-20px);opacity:0;padding:9px 14px;border-radius:12px;color:#f5f5f7;font-size:13px;background:rgba(44,44,46,.92);border:1px solid rgba(255,255,255,.08);transition:.35s var(--spring);pointer-events:none;max-width:80%}
 .dv-toast.show{transform:translate(-50%,0);opacity:1}
-/* maestro-detalle (v5) */
-.dv-col{max-height:260px;transition:max-height .45s var(--ease),opacity .25s,padding .45s var(--ease),margin .45s var(--ease);overflow:hidden}
-.dv.det .dv-col{max-height:0;opacity:0;padding-top:0;padding-bottom:0;margin-top:0;margin-bottom:0}
-.dv footer{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none}.dv footer::-webkit-scrollbar{display:none}.dv footer>*{flex:none}
-.dv-md{position:relative;flex:1;min-height:0;overflow:hidden}
-.dv .dv-master{position:absolute;inset:0;padding:0 10px 12px;transition:transform .5s var(--spring),opacity .3s}
-.dv-md.det .dv-master{transform:translateX(-22%);opacity:0;pointer-events:none}
-.dv-grp{margin:0 0 2px}
-.dv-ghead{display:flex;align-items:center;gap:7px;width:100%;border:0;background:none;color:rgba(235,235,245,.6);font:650 10.5px var(--body);letter-spacing:.08em;text-transform:uppercase;padding:10px 8px 5px;cursor:pointer}
-.dv-ghead svg{width:11px;height:11px;fill:none;stroke:currentColor;stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round;transition:transform .45s var(--spring)}
-.dv-grp.cerrado .dv-ghead svg{transform:rotate(-90deg)}
-.dv-ghead span{margin-left:auto;font:500 11px var(--mono);letter-spacing:0;color:rgba(235,235,245,.35)}
-.dv .dv-grp ul{padding:0;overflow:visible;flex:none}
-.dv-grp.cerrado ul{display:none}
-.dv-item{display:grid;grid-template-columns:30px minmax(0,1fr) auto 9px;align-items:center;gap:10px;padding:5px 8px;border-radius:11px;cursor:pointer;transition:background .15s}
-.dv-item:hover{background:rgba(255,255,255,.06)}.dv-item.sel{background:rgba(91,139,217,.24)}
-.dv-th{width:30px;height:30px;border-radius:8px;background:#58585c center/cover no-repeat;box-shadow:inset 0 0 0 1px rgba(255,255,255,.12)}
-.dv-iname{font-weight:550;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.dv-iname small{display:block;margin:0;font-weight:400;font-size:11px;color:rgba(235,235,245,.35)}
-.dv-icount{font:500 11px var(--mono);color:rgba(235,235,245,.35)}
-.dv-item .dv-dot{margin:0}
-.dv-detail{position:absolute;inset:0;display:flex;flex-direction:column;min-height:0;transform:translateX(105%);transition:transform .55s var(--spring)}
-.dv-md.det .dv-detail{transform:none}
-.dv-dhead{display:grid;grid-template-columns:32px 44px minmax(0,1fr);gap:10px;align-items:center;padding:2px 18px 10px}
+/* v6: inicio simple + editor por clic */
+.dv footer{flex-wrap:nowrap}
+.dv-vistas{position:relative;flex:1;min-height:0;overflow:hidden}
+.dv-vista{position:absolute;inset:0;display:flex;flex-direction:column;min-height:0;transition:transform .55s var(--spring),opacity .3s}
+.dv-editor{transform:translateX(105%)}
+.dv-vistas.editando .dv-inicio{transform:translateX(-22%);opacity:0;pointer-events:none}
+.dv-vistas.editando .dv-editor{transform:none}
+.dv-scroll{flex:1;min-height:0;overflow:auto;padding-bottom:10px}
+.dv .dv-scroll ul{overflow:visible;flex:none}
+.dv-h{margin:6px 18px 8px;font:650 10.5px var(--body);letter-spacing:.08em;text-transform:uppercase;color:rgba(235,235,245,.6)}
+.dv-tip{display:flex;gap:10px;align-items:flex-start;margin:0 18px 12px;padding:10px 12px;border-radius:12px;background:rgba(91,139,217,.16);border:1px solid rgba(91,139,217,.28);font-size:12px;line-height:1.4;color:rgba(235,235,245,.8)}
+.dv-tip b{color:#f5f5f7;font-weight:600}
+.dv-tip svg{flex:none;width:16px;height:16px;margin-top:1px;fill:#5b8bd9;stroke:#5b8bd9;stroke-width:1.5;stroke-linejoin:round}
+.dv-mas{display:flex;gap:6px;flex-wrap:wrap;padding:10px 18px 0;border-top:1px solid rgba(255,255,255,.08)}
+.dv-mas .dv-btn,.dv-mas select{height:28px;font-size:12px}
+.dv-masbtn[aria-expanded=true]{background:rgba(91,139,217,.3)}
+.dv-ehead{display:grid;grid-template-columns:32px 44px minmax(0,1fr);gap:10px;align-items:center;padding:2px 18px 10px}
 .dv-back{width:32px;height:32px;border:0;border-radius:50%;background:rgba(118,118,128,.3);color:#fff;display:grid;place-items:center;padding:0;cursor:pointer;transition:transform .2s var(--spring)}
 .dv-back:active{transform:scale(.9)}
 .dv-back svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
-.dv-dthumb{width:44px;height:44px;border-radius:11px;background:#58585c center/cover no-repeat;box-shadow:inset 0 0 0 1px rgba(255,255,255,.12)}
-.dv-dtit b{display:block;font-weight:600;line-height:1.25;word-break:break-word}
-.dv-dtit small{white-space:normal}
-.dv-parts{display:flex;gap:6px;flex-wrap:wrap;padding:0 18px 10px}
-.dv-part{border:0;border-radius:99px;padding:5px 12px;background:rgba(118,118,128,.24);color:#f5f5f7;font:500 12px var(--body);cursor:pointer;transition:background .2s,transform .25s var(--spring)}
+.dv-dthumb{width:44px;height:44px;border-radius:11px;background:#58585c center/cover no-repeat;box-shadow:0 0 0 2px #5b8bd9,inset 0 0 0 1px rgba(255,255,255,.12)}
+.dv-dtit b{display:block;font-weight:600;font-size:14px;line-height:1.25;word-break:break-word}
+.dv-dtit small{white-space:normal;line-height:1.35}
+.dv-dtit small i{font-style:normal;color:#8fb3ec}
+.dv-parts-w{margin:0 18px 10px;padding:8px 10px;border-radius:12px;background:rgba(118,118,128,.12)}
+.dv-parts-w>span{display:block;font-size:11px;color:rgba(235,235,245,.6);margin-bottom:6px}
+.dv-parts{display:flex;gap:6px;flex-wrap:wrap}
+.dv-part{display:inline-flex;align-items:center;gap:6px;border:0;border-radius:99px;padding:4px 11px 4px 4px;background:rgba(118,118,128,.24);color:#f5f5f7;font:500 12px var(--body);cursor:pointer;transition:background .2s,transform .25s var(--spring)}
+.dv-part i{width:18px;height:18px;border-radius:50%;background:#777 center/cover;box-shadow:inset 0 0 0 1px rgba(255,255,255,.2)}
 .dv-part:active{transform:scale(.94)}.dv-part.on{background:#5b8bd9;color:#fff}
-.dv-seg{position:relative;display:grid;grid-template-columns:repeat(4,1fr);padding:3px;margin:0 18px 12px;border-radius:11px;background:rgba(118,118,128,.18)}
-.dv-seg .pill{position:absolute;top:3px;bottom:3px;left:3px;width:calc((100% - 6px)/4);border-radius:8px;background:rgba(255,255,255,.16);box-shadow:0 3px 8px rgba(0,0,0,.2);transition:transform .45s var(--spring)}
-.dv-seg button{position:relative;border:0;background:none;height:28px;padding:0;color:rgba(235,235,245,.6);font:550 12px var(--body);cursor:pointer;transition:color .2s}
-.dv-seg button[aria-selected="true"]{color:#f5f5f7}
 .dv-dbody{flex:1;min-height:0;overflow:auto;padding:0 18px 16px}
-.dv-field{margin:0 0 16px}
-.dv-lbl{display:flex;justify-content:space-between;gap:8px;font-size:11px;color:rgba(235,235,245,.6);margin-bottom:7px}
+.dv-sec{padding:12px 0 4px;border-top:1px solid rgba(255,255,255,.07)}
+.dv-sec:first-child{border-top:0;padding-top:2px}
+.dv-sec>h4{display:flex;align-items:baseline;gap:8px;margin:0 0 10px;font:650 10.5px var(--body);letter-spacing:.08em;text-transform:uppercase;color:rgba(235,235,245,.6)}
+.dv-sec>h4 small{margin:0 0 0 auto;font:400 11px var(--body);letter-spacing:0;text-transform:none;color:rgba(235,235,245,.35)}
+.dv-field{margin:0 0 14px}
+.dv-lbl{display:flex;justify-content:space-between;align-items:baseline;gap:8px;font-size:11.5px;color:rgba(235,235,245,.7);margin-bottom:7px}
 .dv-lbl b{font:600 11px var(--mono);color:#f5f5f7}
+.dv-lbl button{border:0;background:none;color:#8fb3ec;font:500 11px var(--body);cursor:pointer;padding:0}
 .dv-dbody select{width:100%}
 .dv-note{font-size:11.5px;line-height:1.45;color:rgba(235,235,245,.6);margin:0 0 12px}
-.dv-texgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(52px,1fr));gap:6px}
+.dv-vars{display:grid;grid-template-columns:repeat(auto-fill,minmax(64px,1fr));gap:8px;margin-bottom:10px}
+.dv-var{position:relative;display:flex;flex-direction:column;gap:5px;align-items:stretch;border:0;padding:0;background:none;color:rgba(235,235,245,.7);font:500 11px/1.2 var(--body);cursor:pointer;text-align:center;transition:transform .25s var(--spring)}
+.dv-var:active{transform:scale(.95)}
+.dv-var i{display:block;aspect-ratio:1;border-radius:12px;background:#58585c center/cover no-repeat;box-shadow:inset 0 0 0 1px rgba(255,255,255,.12);transition:box-shadow .2s}
+.dv-var span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dv-var.on i{box-shadow:0 0 0 2px #5b8bd9,inset 0 0 0 1px rgba(255,255,255,.2)}.dv-var.on span{color:#f5f5f7;font-weight:600}
+.dv-var.nueva i{display:grid;place-items:center;background:rgba(118,118,128,.16);border:1.5px dashed rgba(235,235,245,.25);box-shadow:none;font-size:22px;color:rgba(235,235,245,.6)}
+.dv-vedit{display:grid;grid-template-columns:minmax(0,1fr) 96px 30px;gap:6px;margin-bottom:6px}
+.dv-vedit input{min-width:0;background:rgba(118,118,128,.18);border:1px solid transparent;border-radius:9px;color:#f5f5f7;font:500 12.5px var(--body);padding:6px 9px}
+.dv-vedit input:focus{outline:none;border-color:#5b8bd9}
+.dv-vedit input.cost{font:500 11.5px var(--mono)}
+.dv-del{width:30px;height:30px;border:0;border-radius:50%;background:rgba(118,118,128,.18);color:rgba(235,235,245,.6);cursor:pointer;font-size:15px}
+.dv-del:hover{color:#ff6b6b;background:rgba(255,107,107,.14)}.dv-del[disabled]{opacity:.3;cursor:default}
+.dv-texgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(50px,1fr));gap:6px}
 .dv-tx{position:relative;aspect-ratio:1;border:2px solid transparent;border-radius:10px;padding:0;overflow:hidden;background:rgba(118,118,128,.2);color:rgba(235,235,245,.6);font:500 10px/1.15 var(--body);cursor:pointer;transition:transform .2s var(--spring)}
 .dv-tx:active{transform:scale(.94)}.dv-tx img{width:100%;height:100%;object-fit:cover;display:block}.dv-tx.on{border-color:#5b8bd9}
 .dv-tx.cargando{opacity:.45}
-.dv-vrow{display:grid;grid-template-columns:18px minmax(0,1fr) 92px 26px;gap:8px;align-items:center;padding:6px 8px;border-radius:11px;margin-bottom:4px;background:rgba(118,118,128,.12)}
-.dv-vrow.on{background:rgba(91,139,217,.22)}
-.dv-vrow input[type=text]{min-width:0;background:transparent;border:1px solid transparent;border-radius:7px;color:#f5f5f7;font:500 12.5px var(--body);padding:4px 6px}
-.dv-vrow input[type=text]:focus{outline:none;border-color:#5b8bd9;background:rgba(0,0,0,.2)}
-.dv-vrow input.cost{font:500 11px var(--mono);color:rgba(235,235,245,.6)}
-.dv-radio{width:16px;height:16px;border-radius:50%;border:2px solid rgba(235,235,245,.4);padding:0;background:none;cursor:pointer}
-.dv-vrow.on .dv-radio{border-color:#5b8bd9;background:radial-gradient(#5b8bd9 45%,transparent 50%)}
-.dv-del{width:26px;height:26px;border:0;border-radius:50%;background:none;color:rgba(235,235,245,.35);cursor:pointer;font-size:15px}
-.dv-del:hover{color:#ff6b6b;background:rgba(255,107,107,.12)}.dv-del[disabled]{visibility:hidden}
 .dv-row-actions{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
 .dv-color{display:flex;align-items:center;gap:8px}
 .dv-color input[type=color]{width:34px;height:28px;border:0;border-radius:8px;padding:0;background:none;cursor:pointer}
 .dv-color code{font:500 12px var(--mono);color:rgba(235,235,245,.6)}
+.dv-reset{width:100%;justify-content:center;margin-top:4px}
+.dv-seg{position:relative;display:grid;padding:3px;border-radius:11px;background:rgba(118,118,128,.18)}
+.dv-seg .pill{position:absolute;top:3px;bottom:3px;left:3px;border-radius:8px;background:rgba(255,255,255,.16);box-shadow:0 3px 8px rgba(0,0,0,.2);transition:transform .45s var(--spring)}
+.dv-seg button{position:relative;border:0;background:none;height:28px;padding:0;color:rgba(235,235,245,.6);font:550 12px var(--body);cursor:pointer;transition:color .2s}
+.dv-seg button[aria-selected="true"]{color:#f5f5f7}
+.dv-range.sinb{padding-bottom:18px}
+label.dv-muestra{aspect-ratio:16/7;cursor:pointer}label.dv-muestra:hover{border-color:rgba(91,139,217,.6)}label.dv-muestra[aria-disabled=true]{pointer-events:none;opacity:.5}
+.dv-editor.soltar .dv-muestra{border-color:#5b8bd9;background:rgba(91,139,217,.14);transform:scale(1.02)}
+
 /* slider de escala (estilo ui-kit-ambiental) e interruptor */
 .dv-range{position:relative;--thumb:22px;padding-bottom:38px}
 .dv-range input{-webkit-appearance:none;appearance:none;width:100%;height:22px;background:transparent;cursor:pointer;display:block;margin:0}
@@ -529,49 +540,51 @@ label.dv-btn[aria-disabled=true]{opacity:.5;pointer-events:none}
         <div id="dvResumen"></div>
       </header>
       <div class="dv-body">
-        <div class="dv-actions dv-col">
-          <label class="dv-btn dv-primary">Cargar GLB<input type="file" id="dvGlb" accept=".glb,.json,.zip" multiple hidden></label>
-          <button class="dv-btn" id="dvDemo" type="button">Escena de prueba · FRIOX</button>
-          <button class="dv-btn" id="dvBase" type="button">Modelo base</button>
-        </div>
-        <div class="dv-web dv-col">
-          <div class="dv-grid">
-            <label>Tipo de edificio<select id="dvPerfil"></select></label>
-            <label>Tono<select id="dvTono"></select></label>
-            <label>Resolución<select id="dvRes"><option value="1k">1K</option><option value="2k">2K</option></select></label>
-          </div>
-          <button class="dv-btn dv-primary dv-go" id="dvWeb" type="button">Buscar texturas en web</button>
-          <div class="dv-credit"><span id="dvWebEstado">Texturas PBR CC0 con escala real</span><a href="https://polyhaven.com" target="_blank" rel="noopener">Powered by Poly Haven</a></div>
-        </div>
-        <div class="dv-tabs"><button type="button" class="dv-tab on" data-tab="dvPPaleta">Paleta</button><button type="button" class="dv-tab" data-tab="dvPMat">Materiales</button></div>
-        <div class="dv-pane on" id="dvPPaleta"><div class="dv-pal" id="dvPal" role="group" aria-label="Paleta neutra"></div><ul id="dvPaleta"><li class="dv-empty">Pulsa «Buscar texturas en web». Aquí verás los materiales más usados del modelo con la textura elegida y alternativas.</li></ul></div>
-        <div class="dv-pane" id="dvPMat">
-          <div class="dv-stats dv-col" id="dvStats"></div>
-          <div class="dv-filter dv-col"><input id="dvQ" placeholder="Filtrar materiales…" aria-label="Filtrar materiales"></div>
-          <div class="dv-md" id="dvMD">
-            <ul class="dv-master" id="dvLista" aria-label="Materiales por categoría"></ul>
-            <section class="dv-detail" id="dvDetalle" aria-label="Detalle del material" inert>
-              <div class="dv-dhead">
-                <button type="button" class="dv-back" id="dvVolver" aria-label="Volver a la lista"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></button>
-                <span class="dv-dthumb" id="dvDThumb"></span>
-                <div class="dv-dtit"><b id="dvDNombre"></b><small id="dvDMeta"></small></div>
+        <div class="dv-vistas" id="dvVistas">
+          <section class="dv-vista dv-inicio" id="dvInicio" aria-label="Materiales del modelo">
+            <div class="dv-actions">
+              <label class="dv-btn dv-primary">Cargar GLB<input type="file" id="dvGlb" accept=".glb,.json,.zip" multiple hidden></label>
+              <button class="dv-btn" id="dvDemo" type="button">Escena de prueba · FRIOX</button>
+              <button class="dv-btn" id="dvBase" type="button">Modelo base</button>
+            </div>
+            <div class="dv-tip"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3l14 8-6 2-2 6z"/></svg><span><b>Haz clic en un elemento del modelo</b> para editar su material. Se iluminan todas las piezas que lo usan.</span></div>
+            <div class="dv-scroll">
+              <h3 class="dv-h">Texturas por material</h3>
+              <div class="dv-web">
+                <div class="dv-grid">
+                  <label>Tipo de edificio<select id="dvPerfil"></select></label>
+                  <label>Tono<select id="dvTono"></select></label>
+                  <label>Resolución<select id="dvRes"><option value="1k">1K</option><option value="2k">2K</option></select></label>
+                </div>
+                <button class="dv-btn dv-primary dv-go" id="dvWeb" type="button">Buscar texturas en web</button>
+                <div class="dv-credit"><span id="dvWebEstado">Texturas PBR CC0 con escala real</span><a href="https://polyhaven.com" target="_blank" rel="noopener">Powered by Poly Haven</a></div>
               </div>
-              <div class="dv-parts" id="dvPartes" role="group" aria-label="Materiales del elemento" hidden></div>
-              <div class="dv-seg" id="dvDTabs" role="tablist"><span class="pill" aria-hidden="true"></span>
-                <button type="button" role="tab" data-t="muestra">Muestra</button><button type="button" role="tab" data-t="textura">Textura</button><button type="button" role="tab" data-t="ajustes">Ajustes</button><button type="button" role="tab" data-t="variantes">Variantes</button>
-              </div>
-              <div class="dv-dbody" id="dvDBody"></div>
-            </section>
-          </div>
+              <ul id="dvPaleta"><li class="dv-empty">Pulsa «Buscar texturas en web» para ver la textura de cada material del modelo y sus alternativas.</li></ul>
+              <h3 class="dv-h">Paleta neutra</h3>
+              <div class="dv-pal" id="dvPal" role="group" aria-label="Paleta neutra"></div>
+            </div>
+          </section>
+          <section class="dv-vista dv-editor" id="dvEditor" aria-label="Editar material" inert>
+            <div class="dv-ehead">
+              <button type="button" class="dv-back" id="dvVolver" aria-label="Volver" title="Volver (Esc)"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></button>
+              <span class="dv-dthumb" id="dvDThumb"></span>
+              <div class="dv-dtit"><b id="dvDNombre"></b><small id="dvDMeta"></small></div>
+            </div>
+            <div class="dv-parts-w" id="dvPartesW" hidden><span>Este elemento tiene varios materiales:</span><div class="dv-parts" id="dvPartes" role="group" aria-label="Materiales del elemento"></div></div>
+            <div class="dv-dbody" id="dvDBody"></div>
+          </section>
+        </div>
+        <div class="dv-mas" id="dvMas" hidden>
+          <button class="dv-btn" id="dvOrig" type="button">Ver originales</button>
+          <label class="dv-btn" title="Usar una carpeta de texturas local en lugar de la web">Carpeta local<input type="file" id="dvTex" webkitdirectory directory multiple hidden></label>
+          <button class="dv-btn" id="dvManifest" type="button">Exportar manifest</button>
+          <select id="dvAnti" title="Repetición de texturas"><option value="off">Texturas: repetición normal</option><option value="obj">Variar UV por objeto</option><option value="inf">Infinito (sin repetición visible)</option></select>
+          <select id="dvUV" title="Mapeo UV"><option value="box">UV caja · escala real</option><option value="original">UV originales</option></select>
         </div>
         <footer>
           <button class="dv-btn" id="dvExportar" type="button">Exportar mapeo</button>
           <label class="dv-btn">Importar mapeo<input type="file" id="dvMapa" accept=".json,.zip" hidden></label>
-          <button class="dv-btn" id="dvManifest" type="button">Exportar manifest</button>
-          <button class="dv-btn" id="dvOrig" type="button">Ver originales</button>
-          <label class="dv-btn" title="Usar una carpeta de texturas local en lugar de la web">Carpeta local<input type="file" id="dvTex" webkitdirectory directory multiple hidden></label>
-          <select id="dvAnti" title="Repetición de texturas"><option value="off">Texturas: repetición normal</option><option value="obj">Variar UV por objeto</option><option value="inf">Infinito (sin repetición visible)</option></select>
-          <select id="dvUV" title="Mapeo UV"><option value="box">UV caja · escala real</option><option value="original">UV originales</option></select>
+          <button class="dv-btn dv-masbtn" id="dvMasBtn" type="button" aria-expanded="false" aria-controls="dvMas">Más opciones</button>
         </footer>
       </div>
     </aside>
@@ -1578,6 +1591,8 @@ function iniciar3D(){
       return await new Promise((ok,ko)=>L.parse(sanearGLB(buf),'',g=>{try{
         // El GLB de FRIOX utiliza TEXCOORD_1 para texturas; se expone tambien como uv.
         g.scene.traverse(o=>{if(o.isMesh&&o.geometry&&!o.geometry.attributes.uv&&o.geometry.attributes.uv2)o.geometry.setAttribute('uv',o.geometry.attributes.uv2);});
+        // posiciones cuantizadas (Int16 normalizado) → Float32: clic, cajas, áreas y UV en metros reales
+        MM.dequantize(g.scene);
         ok(g.scene);
       }catch(e){ko(e);}},ko));
     }

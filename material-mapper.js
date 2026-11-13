@@ -204,7 +204,9 @@ function scoreRule(r, t) {
       const exactFirst = t.first === kk || t.first === kk + 's' || t.first === kk + 'es';
       kw.push(10 + (exactFirst ? 4 : 0)); why.push(`material «${k}»`);
     } else if (hasWord(t.family, k)) { kw.push(5); why.push(`familia «${k}»`); }
-    else if (hasWord(t.hints, k)) { kw.push(4); why.push(`objeto «${k}»`); }
+    // el nombre del objeto o de sus padres no basta para materiales transparentes, reflejantes o emisivos:
+    // una losa dentro de «…cristal…» acabaría invisible
+    else if (hasWord(t.hints, k) && !isColorOnly(r)) { kw.push(4); why.push(`objeto «${k}»`); }
   }
   let cat = 0;
   for (const c of r.categories || []) if (t.cats.includes(words(c))) { cat = 3; why.push(`categoría «${c}»`); break; }
@@ -393,21 +395,21 @@ function baseTex(url, srgb) {
   texBase.set(key, t);
   return t;
 }
-function cloneTex(b, rep) {
+function cloneTex(b, rep, rot = 0) {
   const t = b.clone(); baseOf.set(t, b);
-  t.repeat.set(rep, rep); t.anisotropy = CFG.aniso;
+  t.repeat.set(rep, rep); t.anisotropy = CFG.aniso; t.center.set(.5, .5); t.rotation = rot;
   if (!b.image) { if (!texPending.has(b)) texPending.set(b, []); texPending.get(b).push(t); }
   return t;
 }
 /* Copia compartida por (url, repetición): dos materiales con la misma escala usan la misma textura en GPU */
-function texFor(url, srgb, rep) {
-  const key = `${url}|${srgb}|${rep}`;
-  if (!texShared.has(key)) texShared.set(key, cloneTex(baseTex(url, srgb), rep));
+function texFor(url, srgb, rep, rot = 0) {
+  const key = `${url}|${srgb}|${rep}|${rot}`;
+  if (!texShared.has(key)) texShared.set(key, cloneTex(baseTex(url, srgb), rep, rot));
   return texShared.get(key);
 }
 const TEX_SLOTS = ['map', 'normalMap', 'roughnessMap', 'metalnessMap', 'aoMap', 'alphaMap'];
 
-/* spec = { rule, tex, tint, color, rep } — ver MaterialMapper.resolve() */
+/* spec = { rule, tex, tint, color, rep, rotation, roughness } — ver MaterialMapper.resolve() */
 function createMaterial(spec) {
   const { rule, tex } = spec;
   const p = { ...(rule?.pbr || {}) };
@@ -434,7 +436,8 @@ function createMaterial(spec) {
   M.envMapIntensity = p.transmission ? 1 : CFG.env;
   if (tex) {
     const rep = spec.rep;
-    const L = (slot, srgb = false) => tex.maps[slot] ? texFor(tex.maps[slot].url, srgb, rep) : null;
+    const rot = (spec.rotation || 0) * Math.PI / 180;
+    const L = (slot, srgb = false) => tex.maps[slot] ? texFor(tex.maps[slot].url, srgb, rep, rot) : null;
     if ((M.map = L('map', true))) M.color.set(spec.tint || p.tint || '#ffffff');
     if (tex.maps.arm && !tex.maps.roughnessMap) {          // ARM empaquetado: R=AO, G=rugosidad, B=metal
       const arm = L('arm'); M.roughnessMap = arm; M.metalnessMap = arm; M.aoMap = arm;
@@ -447,26 +450,49 @@ function createMaterial(spec) {
     if ((M.alphaMap = L('alphaMap'))) M.transparent = true;
     made.push(M); patchNoTile(M);
   }
+  /* acabado: rugosidad absoluta sin mapa; con mapa de rugosidad actúa como multiplicador */
+  if (spec.roughness != null) M.roughness = spec.roughness;
   return M;
 }
 /* Cambia la repetición de un material en vivo (sin recrearlo). La primera vez le da copias propias de sus texturas. */
-function setMaterialRepeat(M, rep) {
+function setMaterialRepeat(M, rep, rotDeg = 0) {
+  const rot = rotDeg * Math.PI / 180;
   if (!M.userData.ownTex) {
     const seen = new Map();
-    TEX_SLOTS.forEach(k => { const t = M[k]; if (!t) return; if (!seen.has(t)) seen.set(t, cloneTex(baseOf.get(t) || t, rep)); M[k] = seen.get(t); });
+    TEX_SLOTS.forEach(k => { const t = M[k]; if (!t) return; if (!seen.has(t)) seen.set(t, cloneTex(baseOf.get(t) || t, rep, rot)); M[k] = seen.get(t); });
     M.userData.ownTex = true; M.needsUpdate = true;
   }
-  TEX_SLOTS.forEach(k => { if (M[k]) M[k].repeat.set(rep, rep); });
+  TEX_SLOTS.forEach(k => { if (M[k]) { M[k].repeat.set(rep, rep); M[k].rotation = rot; } });
 }
 
 /* UV tipo caja en metros: proyecta cada cara sobre el eje dominante de su normal.
    seed (opcional): giro de 0/90/180/270° y desplazamiento propios de la pieza («UV aleatorias»). */
+/* Posiciones cuantizadas (KHR_mesh_quantization, p. ej. Int16 normalizado): three r128 no las desnormaliza en getX */
+function denormFactor(attr) {
+  if (!attr || !attr.normalized) return 1;
+  const A = attr.array;
+  return A instanceof Int16Array ? 1 / 32767 : A instanceof Uint16Array ? 1 / 65535 : A instanceof Int8Array ? 1 / 127 : A instanceof Uint8Array ? 1 / 255 : 1;
+}
+/* Convierte a Float32 las posiciones cuantizadas de un modelo (una vez por geometría). En r128 la GPU las dibuja
+   bien, pero el CPU (raycaster, cajas envolventes, áreas, UV) las lee sin normalizar: 32 767 veces más grandes. */
+function dequantize(root) {
+  const vistas = new Set(); let n = 0;
+  [].concat(root).forEach(r0 => r0.traverse(o => {
+    const g = o.isMesh && o.geometry; if (!g || vistas.has(g)) return; vistas.add(g);
+    const P = g.attributes.position, d = denormFactor(P); if (d === 1) return;
+    const out = new Float32Array(P.count * 3);
+    for (let i = 0; i < P.count; i++) { out[i * 3] = P.getX(i) * d; out[i * 3 + 1] = P.getY(i) * d; out[i * 3 + 2] = P.getZ(i) * d; }
+    g.setAttribute('position', new THREE.BufferAttribute(out, 3));
+    g.computeBoundingBox(); g.computeBoundingSphere(); n++;
+  }));
+  return n;
+}
 function boxUV(geometry, s = new THREE.Vector3(1, 1, 1), seed = null) {
   if (!geometry.attributes.normal) geometry.computeVertexNormals();
-  const P = geometry.attributes.position, N = geometry.attributes.normal;
+  const P = geometry.attributes.position, N = geometry.attributes.normal, d = denormFactor(P);
   const uv = new Float32Array(P.count * 2);
   for (let i = 0; i < P.count; i++) {
-    const x = P.getX(i) * s.x, y = P.getY(i) * s.y, z = P.getZ(i) * s.z;
+    const x = P.getX(i) * s.x * d, y = P.getY(i) * s.y * d, z = P.getZ(i) * s.z * d;
     const ax = Math.abs(N.getX(i)), ay = Math.abs(N.getY(i)), az = Math.abs(N.getZ(i));
     let u, v;
     if (ax >= ay && ax >= az) { u = z; v = y; }
@@ -572,7 +598,8 @@ function localArea(g, start, count) {
     _a.fromBufferAttribute(P, ia); _b.fromBufferAttribute(P, ib); _c.fromBufferAttribute(P, ic);
     area += _b.sub(_a).cross(_c.sub(_a)).length() / 2;
   }
-  return area;
+  const d = denormFactor(P);
+  return area * d * d;
 }
 function meshArea(mesh, slot) {
   const g = mesh.geometry; if (!g || !g.attributes || !g.attributes.position) return 0;
@@ -595,10 +622,10 @@ function categoryGroup(entry) {
 }
 
 const deep = o => o == null ? o : JSON.parse(JSON.stringify(o));
-const VARIANT_FIELDS = ['name', 'rule', 'texture', 'tint', 'scale', 'randomUV', 'sample', 'sampleMode', 'costRef'];
+const VARIANT_FIELDS = ['name', 'rule', 'texture', 'tint', 'scale', 'rotation', 'roughness', 'randomUV', 'sample', 'sampleMode', 'costRef'];
 /* ¿La variante cambia algo respecto a la asignación automática? */
 const variantIsManual = v => !!v && (v.rule != null || v.texture != null || v.tint != null || v.sample != null
-  || (v.scale != null && v.scale !== 1) || !!v.randomUV);
+  || (v.scale != null && v.scale !== 1) || !!v.randomUV || !!v.rotation || v.roughness != null);
 const cleanVariant = v => { const o = {}; for (const k of VARIANT_FIELDS) if (v[k] !== undefined && v[k] !== null && v[k] !== '') o[k] = v[k]; return o; };
 
 /* Evento global para conectar variantes con otras partes de la página (p. ej. escenarios del presupuesto) */
@@ -756,10 +783,11 @@ class MaterialMapper {
     // sin muestra, sin textura y sin referencia de color: color neutro según el rol (maqueta limpia)
     const color = !tex && !tint && !colorOnly && !keepOriginal ? this.palette[this.roleOf(e.name)] : null;
     return { rule, tex, tint, color, role: this.roleOf(e.name), scale, baseScale, meters: baseScale * scale, rep: 1 / (baseScale * scale),
+      rotation: tex ? (+v.rotation || 0) : 0, roughness: v.roughness != null && !colorOnly ? +v.roughness : null,
       randomUV: !!v.randomUV, sampleMode, keepOriginal, colorOnly, source };
   }
   _key(r) {
-    return [r.rule?.id || '-', r.tex?.id || '-', r.tint || '', r.color || '', r.tex ? +r.rep.toFixed(5) : ''].join('|');
+    return [r.rule?.id || '-', r.tex?.id || '-', r.tint || '', r.color || '', r.tex ? +r.rep.toFixed(5) : '', r.rotation || '', r.roughness ?? ''].join('|');
   }
   _material(r) {
     const key = this._key(r);
@@ -813,30 +841,38 @@ class MaterialMapper {
   applySlots(ids) { for (const id of [].concat(ids)) { const e = this.byName?.get(id); if (e) this._applyEntry(e); } this._gc(); }
 
   /**
-   * Escala en vivo (slider): cambia la escala de la variante activa y solo `texture.repeat` del material,
-   * sin recrearlo. Si el material lo comparten otros slots, este slot recibe una copia propia una sola vez.
-   * Al soltar el slider llama commitScale().
+   * Ajuste en vivo (sliders): cambia campos de la variante activa (scale, rotation, roughness) y los aplica
+   * al material sin recrearlo (texture.repeat / rotation, material.roughness). Si el material lo comparten
+   * otros slots, este slot recibe una copia propia una sola vez. Al soltar el slider llama commitPreview().
    */
-  previewScale(slotId, scale) {
+  previewVariant(slotId, patch = {}) {
     const s = this.slots[slotId], e = this.byName?.get(slotId); if (!s || !e) return false;
     const v = s.variants[s.active];
-    if (Math.abs(scale - 1) < 1e-4) delete v.scale; else v.scale = +scale.toFixed(4);
+    for (const [k, val] of Object.entries(patch)) {
+      const neutro = val == null || (k === 'scale' && Math.abs(val - 1) < 1e-4) || (k === 'rotation' && !val);
+      if (neutro) delete v[k]; else v[k] = +(+val).toFixed(4);
+    }
     const r = this.resolve(e);
     const M = e.mat;
-    if (!M || !r.tex || !M.map) { this._applyEntry(e); return true; }
+    if (!M) { this._applyEntry(e); return true; }
     let mat = M;
     if (this.entries.some(o => o !== e && o.mat === M)) {
       mat = M.clone(); mat.userData = { mmKey: null, ownTex: false };
       patchNoTile(mat); made.push(mat);
       e.mat = mat; e.uses.forEach(u => setMat(u.mesh, u.slot, mat));
-    } else if (this.cache.get(M.userData.mmKey) === M) this.cache.delete(M.userData.mmKey);
-    setMaterialRepeat(mat, r.rep);
+    } else {
+      if (this.cache.get(M.userData.mmKey) === M) this.cache.delete(M.userData.mmKey);
+      if (!made.includes(M)) made.push(M);
+    }
+    if (r.tex && mat.map) setMaterialRepeat(mat, r.rep, r.rotation);
+    const base = r.rule?.pbr?.roughness ?? .8;
+    mat.roughness = r.roughness != null ? r.roughness : (r.tex && (r.tex.maps.roughnessMap || r.tex.maps.arm) ? 1 : base);
     mat.userData.mmKey = null;
     e.result = r;
     return true;
   }
-  /** Termina un cambio de escala: el material queda en el caché con su clave nueva (o se reutiliza uno igual). */
-  commitScale(slotId) {
+  /** Termina un ajuste en vivo: el material queda en el caché con su clave nueva (o se reutiliza uno igual). */
+  commitPreview(slotId) {
     const e = this.byName?.get(slotId); if (!e || !e.mat) return;
     const r = this.resolve(e), key = this._key(r), M = e.mat;
     if (M.userData.mmKey === key) return;
@@ -845,6 +881,9 @@ class MaterialMapper {
     else { M.userData.mmKey = key; this.cache.set(key, M); }
     this._gc();
   }
+  /* compatibilidad con la Parte 3 */
+  previewScale(slotId, scale) { return this.previewVariant(slotId, { scale }); }
+  commitScale(slotId) { return this.commitPreview(slotId); }
   /* Libera materiales que ya no usa ningún slot ni están en el caché */
   _gc() {
     const used = new Set(this.entries.map(e => e.mat).filter(Boolean));
@@ -1253,7 +1292,7 @@ function searchTextures(catalog, profileId, ruleId, limit = 6) {
 /* DEV:END */
 
 const API = { MaterialMapper, DEFAULT_RULES, resolveTexture, norm, CFG, setAntiTile, HOOKS: MM_HOOKS, GROUP_ORDER,
-  isColorOnly, variantIsManual, polyHavenTexture, dominantColor, DEFAULT_PALETTE, ROLES };
+  isColorOnly, variantIsManual, polyHavenTexture, dominantColor, DEFAULT_PALETTE, ROLES, dequantize };
 /* DEV:START */
 Object.assign(API, { PROFILES, TONES, profileTint, libraryFromFiles, libraryFromManifest, exportManifest, loadPolyHavenCatalog, searchTextures });
 /* DEV:END */
