@@ -346,6 +346,66 @@ h1{margin:8px 0 10px;font-family:var(--display);font-weight:400;font-size:32px;f
 .dragging .dv-drop{opacity:1}
 .dv-toast{position:absolute;z-index:15;left:50%;top:16px;transform:translate(-50%,-20px);opacity:0;padding:9px 14px;border-radius:12px;color:#f5f5f7;font-size:13px;background:rgba(44,44,46,.92);border:1px solid rgba(255,255,255,.08);transition:.35s var(--spring);pointer-events:none;max-width:80%}
 .dv-toast.show{transform:translate(-50%,0);opacity:1}
+/* maestro-detalle (v5) */
+.dv-col{max-height:260px;transition:max-height .45s var(--ease),opacity .25s,padding .45s var(--ease),margin .45s var(--ease);overflow:hidden}
+.dv.det .dv-col{max-height:0;opacity:0;padding-top:0;padding-bottom:0;margin-top:0;margin-bottom:0}
+.dv footer{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none}.dv footer::-webkit-scrollbar{display:none}.dv footer>*{flex:none}
+.dv-md{position:relative;flex:1;min-height:0;overflow:hidden}
+.dv .dv-master{position:absolute;inset:0;padding:0 10px 12px;transition:transform .5s var(--spring),opacity .3s}
+.dv-md.det .dv-master{transform:translateX(-22%);opacity:0;pointer-events:none}
+.dv-grp{margin:0 0 2px}
+.dv-ghead{display:flex;align-items:center;gap:7px;width:100%;border:0;background:none;color:rgba(235,235,245,.6);font:650 10.5px var(--body);letter-spacing:.08em;text-transform:uppercase;padding:10px 8px 5px;cursor:pointer}
+.dv-ghead svg{width:11px;height:11px;fill:none;stroke:currentColor;stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round;transition:transform .45s var(--spring)}
+.dv-grp.cerrado .dv-ghead svg{transform:rotate(-90deg)}
+.dv-ghead span{margin-left:auto;font:500 11px var(--mono);letter-spacing:0;color:rgba(235,235,245,.35)}
+.dv .dv-grp ul{padding:0;overflow:visible;flex:none}
+.dv-grp.cerrado ul{display:none}
+.dv-item{display:grid;grid-template-columns:30px minmax(0,1fr) auto 9px;align-items:center;gap:10px;padding:5px 8px;border-radius:11px;cursor:pointer;transition:background .15s}
+.dv-item:hover{background:rgba(255,255,255,.06)}.dv-item.sel{background:rgba(91,139,217,.24)}
+.dv-th{width:30px;height:30px;border-radius:8px;background:#58585c center/cover no-repeat;box-shadow:inset 0 0 0 1px rgba(255,255,255,.12)}
+.dv-iname{font-weight:550;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dv-iname small{display:block;margin:0;font-weight:400;font-size:11px;color:rgba(235,235,245,.35)}
+.dv-icount{font:500 11px var(--mono);color:rgba(235,235,245,.35)}
+.dv-item .dv-dot{margin:0}
+.dv-detail{position:absolute;inset:0;display:flex;flex-direction:column;min-height:0;transform:translateX(105%);transition:transform .55s var(--spring)}
+.dv-md.det .dv-detail{transform:none}
+.dv-dhead{display:grid;grid-template-columns:32px 44px minmax(0,1fr);gap:10px;align-items:center;padding:2px 18px 10px}
+.dv-back{width:32px;height:32px;border:0;border-radius:50%;background:rgba(118,118,128,.3);color:#fff;display:grid;place-items:center;padding:0;cursor:pointer;transition:transform .2s var(--spring)}
+.dv-back:active{transform:scale(.9)}
+.dv-back svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
+.dv-dthumb{width:44px;height:44px;border-radius:11px;background:#58585c center/cover no-repeat;box-shadow:inset 0 0 0 1px rgba(255,255,255,.12)}
+.dv-dtit b{display:block;font-weight:600;line-height:1.25;word-break:break-word}
+.dv-dtit small{white-space:normal}
+.dv-parts{display:flex;gap:6px;flex-wrap:wrap;padding:0 18px 10px}
+.dv-part{border:0;border-radius:99px;padding:5px 12px;background:rgba(118,118,128,.24);color:#f5f5f7;font:500 12px var(--body);cursor:pointer;transition:background .2s,transform .25s var(--spring)}
+.dv-part:active{transform:scale(.94)}.dv-part.on{background:#5b8bd9;color:#fff}
+.dv-seg{position:relative;display:grid;grid-template-columns:repeat(4,1fr);padding:3px;margin:0 18px 12px;border-radius:11px;background:rgba(118,118,128,.18)}
+.dv-seg .pill{position:absolute;top:3px;bottom:3px;left:3px;width:calc((100% - 6px)/4);border-radius:8px;background:rgba(255,255,255,.16);box-shadow:0 3px 8px rgba(0,0,0,.2);transition:transform .45s var(--spring)}
+.dv-seg button{position:relative;border:0;background:none;height:28px;padding:0;color:rgba(235,235,245,.6);font:550 12px var(--body);cursor:pointer;transition:color .2s}
+.dv-seg button[aria-selected="true"]{color:#f5f5f7}
+.dv-dbody{flex:1;min-height:0;overflow:auto;padding:0 18px 16px}
+.dv-field{margin:0 0 16px}
+.dv-lbl{display:flex;justify-content:space-between;gap:8px;font-size:11px;color:rgba(235,235,245,.6);margin-bottom:7px}
+.dv-lbl b{font:600 11px var(--mono);color:#f5f5f7}
+.dv-dbody select{width:100%}
+.dv-note{font-size:11.5px;line-height:1.45;color:rgba(235,235,245,.6);margin:0 0 12px}
+.dv-texgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(52px,1fr));gap:6px}
+.dv-tx{position:relative;aspect-ratio:1;border:2px solid transparent;border-radius:10px;padding:0;overflow:hidden;background:rgba(118,118,128,.2);color:rgba(235,235,245,.6);font:500 10px/1.15 var(--body);cursor:pointer;transition:transform .2s var(--spring)}
+.dv-tx:active{transform:scale(.94)}.dv-tx img{width:100%;height:100%;object-fit:cover;display:block}.dv-tx.on{border-color:#5b8bd9}
+.dv-tx.cargando{opacity:.45}
+.dv-vrow{display:grid;grid-template-columns:18px minmax(0,1fr) 92px 26px;gap:8px;align-items:center;padding:6px 8px;border-radius:11px;margin-bottom:4px;background:rgba(118,118,128,.12)}
+.dv-vrow.on{background:rgba(91,139,217,.22)}
+.dv-vrow input[type=text]{min-width:0;background:transparent;border:1px solid transparent;border-radius:7px;color:#f5f5f7;font:500 12.5px var(--body);padding:4px 6px}
+.dv-vrow input[type=text]:focus{outline:none;border-color:#5b8bd9;background:rgba(0,0,0,.2)}
+.dv-vrow input.cost{font:500 11px var(--mono);color:rgba(235,235,245,.6)}
+.dv-radio{width:16px;height:16px;border-radius:50%;border:2px solid rgba(235,235,245,.4);padding:0;background:none;cursor:pointer}
+.dv-vrow.on .dv-radio{border-color:#5b8bd9;background:radial-gradient(#5b8bd9 45%,transparent 50%)}
+.dv-del{width:26px;height:26px;border:0;border-radius:50%;background:none;color:rgba(235,235,245,.35);cursor:pointer;font-size:15px}
+.dv-del:hover{color:#ff6b6b;background:rgba(255,107,107,.12)}.dv-del[disabled]{visibility:hidden}
+.dv-row-actions{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+.dv-color{display:flex;align-items:center;gap:8px}
+.dv-color input[type=color]{width:34px;height:28px;border:0;border-radius:8px;padding:0;background:none;cursor:pointer}
+.dv-color code{font:500 12px var(--mono);color:rgba(235,235,245,.6)}
 @media (max-width:760px){.dv{width:auto;right:var(--gap)}}
 /* DEV:END */
 </style>
@@ -432,12 +492,12 @@ h1{margin:8px 0 10px;font-family:var(--display);font-weight:400;font-size:32px;f
         <div id="dvResumen"></div>
       </header>
       <div class="dv-body">
-        <div class="dv-actions">
+        <div class="dv-actions dv-col">
           <label class="dv-btn dv-primary">Cargar GLB<input type="file" id="dvGlb" accept=".glb,.json" multiple hidden></label>
           <button class="dv-btn" id="dvDemo" type="button">Escena de prueba · FRIOX</button>
           <button class="dv-btn" id="dvBase" type="button">Modelo base</button>
         </div>
-        <div class="dv-web">
+        <div class="dv-web dv-col">
           <div class="dv-grid">
             <label>Tipo de edificio<select id="dvPerfil"></select></label>
             <label>Tono<select id="dvTono"></select></label>
@@ -449,9 +509,23 @@ h1{margin:8px 0 10px;font-family:var(--display);font-weight:400;font-size:32px;f
         <div class="dv-tabs"><button type="button" class="dv-tab on" data-tab="dvPPaleta">Paleta</button><button type="button" class="dv-tab" data-tab="dvPMat">Materiales</button></div>
         <div class="dv-pane on" id="dvPPaleta"><ul id="dvPaleta"><li class="dv-empty">Pulsa «Buscar texturas en web». Aquí verás los materiales más usados del modelo con la textura elegida y alternativas.</li></ul></div>
         <div class="dv-pane" id="dvPMat">
-          <div class="dv-stats" id="dvStats"></div>
-          <div class="dv-filter"><input id="dvQ" placeholder="Filtrar materiales…" aria-label="Filtrar materiales"></div>
-          <ul id="dvLista"></ul>
+          <div class="dv-stats dv-col" id="dvStats"></div>
+          <div class="dv-filter dv-col"><input id="dvQ" placeholder="Filtrar materiales…" aria-label="Filtrar materiales"></div>
+          <div class="dv-md" id="dvMD">
+            <ul class="dv-master" id="dvLista" aria-label="Materiales por categoría"></ul>
+            <section class="dv-detail" id="dvDetalle" aria-label="Detalle del material" inert>
+              <div class="dv-dhead">
+                <button type="button" class="dv-back" id="dvVolver" aria-label="Volver a la lista"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></button>
+                <span class="dv-dthumb" id="dvDThumb"></span>
+                <div class="dv-dtit"><b id="dvDNombre"></b><small id="dvDMeta"></small></div>
+              </div>
+              <div class="dv-parts" id="dvPartes" role="group" aria-label="Materiales del elemento" hidden></div>
+              <div class="dv-seg" id="dvDTabs" role="tablist"><span class="pill" aria-hidden="true"></span>
+                <button type="button" role="tab" data-t="muestra">Muestra</button><button type="button" role="tab" data-t="textura">Textura</button><button type="button" role="tab" data-t="ajustes">Ajustes</button><button type="button" role="tab" data-t="variantes">Variantes</button>
+              </div>
+              <div class="dv-dbody" id="dvDBody"></div>
+            </section>
+          </div>
         </div>
         <footer>
           <button class="dv-btn" id="dvExportar" type="button">Exportar mapeo</button>

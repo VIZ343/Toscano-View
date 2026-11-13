@@ -99,48 +99,237 @@ function init(ctx) {
     return g;
   }
 
-  /* ---- panel ---- */
+  /* ---- panel maestro-detalle ---- */
+  const ui = { filtro: 'all', sel: null, tab: 'textura', elem: null, cerrados: new Set() };
+  try { JSON.parse(localStorage.getItem('dvGruposCerrados') || '[]').forEach(g => ui.cerrados.add(g)); } catch (e) {}
+  const guardarCerrados = () => { try { localStorage.setItem('dvGruposCerrados', JSON.stringify([...ui.cerrados])); } catch (e) {} };
   const estado2 = e => e.result.source === 'manual' ? 'manual' : (!e.result.rule && !e.result.tex) ? 'none' : e.match.conflict ? 'review' : 'auto';
+  const entrada = id => mapa.byName && mapa.byName.get(id);
+  const hex = c => '#' + c.getHexString();
+  /* Miniatura de un slot: muestra › textura › color del material asignado */
+  function miniatura(e) {
+    const v = mapa.activeVariant(e.name), r = e.result || {};
+    const img = v.sample ? mapa.sampleUrl(v.sample) : r.tex ? (r.tex.thumb || (r.tex.maps.map && r.tex.maps.map.url)) : null;
+    const col = e.mat ? hex(e.mat.color) : r.tint || (r.rule && r.rule.pbr && r.rule.pbr.color) || e.color || '#58585c';
+    return img ? 'background-color:' + col + ";background-image:url('" + esc(String(img).replace(/'/g, '%27')) + "')" : 'background:' + col;
+  }
+  const nombreCorto = e => String(e.material || e.name).replace(/_+/g, ' ').trim();
+  const detalleCorto = e => [...(e.categories || [])][0] + (e.match.conflict ? ' · familia ' + e.match.conflict.label.toLowerCase() : '');
+
   function refrescarPanel() { Q('#dvModelo').textContent = ctx.nombre + (ctx.modeloExt ? '' : ' · los materiales ligados al presupuesto están protegidos'); render(); renderPaleta(); }
-  function render() {
+  function render() { renderStats(); renderMaster(); renderDetalle(); }
+  function renderStats() {
     const rep = mapa.report(), cuenta = { all: rep.total, auto: 0, manual: 0, review: 0, none: 0 };
     mapa.entries.forEach(e => { if (e.result) cuenta[estado2(e)]++; });
-    Q('#dvStats').innerHTML = [['all', 'Grupos'], ['auto', 'Auto'], ['manual', 'Manual'], ['review', 'Revisar'], ['none', 'Sin asignar']].map(p => '<div class="dv-stat ' + p[0] + ' ' + (vista2 === p[0] ? 'on' : '') + '" data-v="' + p[0] + '"><b>' + cuenta[p[0]] + '</b><span>' + p[1] + '</span></div>').join('');
+    Q('#dvStats').innerHTML = [['all', 'Grupos'], ['auto', 'Auto'], ['manual', 'Manual'], ['review', 'Revisar'], ['none', 'Sin asignar']].map(p => '<div class="dv-stat ' + p[0] + ' ' + (ui.filtro === p[0] ? 'on' : '') + '" data-v="' + p[0] + '" role="button" tabindex="0"><b>' + cuenta[p[0]] + '</b><span>' + p[1] + '</span></div>').join('');
     Q('#dvResumen').textContent = rep.objects.toLocaleString() + ' objetos · ' + rep.sourceMaterials.toLocaleString() + ' materiales originales → ' + rep.builtMaterials + ' materiales';
-    const q = norm(Q('#dvQ').value);
-    const lista = mapa.entries.map((e, i) => ({ e, i })).filter(x => x.e.result && (!q || norm(x.e.name).indexOf(q) >= 0) && (vista2 === 'all' || estado2(x.e) === vista2));
-    if (!lista.length) { Q('#dvLista').innerHTML = '<li class="dv-empty">' + (mapa.entries.length ? 'Sin coincidencias' : 'El modelo no tiene materiales') + '</li>'; return; }
-    Q('#dvLista').innerHTML = lista.map(x => {
-      const e = x.e, r = e.result, o = mapa.activeVariant(e.name), st = estado2(e), lock = ctx.ligado(e), autoR = e.match.rule ? e.match.rule.label : 'sin regla', autoT = MM.resolveTexture(r.rule, mapa.library);
-      const cats = [...e.categories].slice(0, 2).join(', '), fam = [...(e.families || [])][0], dis = lock ? ' disabled' : '';
-      return '<li class="dv-row" data-i="' + x.i + '"><span class="dv-dot ' + (lock ? 'lock' : st) + '"></span><div>' +
-        '<div class="dv-name">' + (e.color ? '<span class="dv-sw" style="background:' + e.color + '"></span>' : '') + esc(e.name) + '</div>' +
-        '<div class="dv-meta">' + e.uses.length + ' objeto' + (e.uses.length > 1 ? 's' : '') + (cats ? ' · ' + esc(cats) : '') + (fam ? ' · ' + esc(fam.slice(0, 48)) : '') + '</div>' +
-        '<div class="dv-why">' + (lock ? 'Ligado a la tabla de presupuesto: no se modifica' : r.source === 'manual' ? 'Asignación manual' : e.match.rule ? 'Coincide por ' + esc(e.match.why.slice(0, 2).join(', ')) : 'Ninguna regla coincide') + '</div>' +
-        (st === 'review' && !lock ? '<div class="dv-warn">⚠ La familia sugiere ' + esc(e.match.conflict.label) + '<button type="button" data-accept="' + e.match.conflict.id + '">Usar</button><button type="button" data-keep>Mantener</button></div>' : '') +
-        '</div><div class="dv-ctrl"><select data-k="rule" aria-label="Regla"' + dis + '><option value="">Auto · ' + esc(autoR) + '</option>' +
-        mapa.rules.map(rl => '<option value="' + rl.id + '"' + (o.rule === rl.id ? ' selected' : '') + '>' + esc(rl.label) + '</option>').join('') + '<option value="__none"' + (o.rule === '__none' ? ' selected' : '') + '>Mantener original</option></select>' +
-        '<select data-k="texture" aria-label="Textura"' + dis + '><option value="">Auto · ' + (autoT ? esc(autoT.label) : 'procedural') + '</option>' +
-        mapa.library.map(t => '<option value="' + esc(t.id) + '"' + (o.texture === t.id ? ' selected' : '') + '>' + esc(t.label) + '</option>').join('') + '<option value="__none"' + (o.texture === '__none' ? ' selected' : '') + '>Procedural (sin textura)</option></select></div></li>';
-    }).join('');
   }
+  function renderMaster() {
+    const q = norm(Q('#dvQ').value);
+    const lista = mapa.entries.filter(e => e.result && (!q || norm(e.name).indexOf(q) >= 0 || norm(mapa.slots[e.name]?.label || '').indexOf(q) >= 0) && (ui.filtro === 'all' || estado2(e) === ui.filtro));
+    if (!lista.length) { Q('#dvLista').innerHTML = '<li class="dv-empty">' + (mapa.entries.length ? 'Sin coincidencias' : 'El modelo no tiene materiales') + '</li>'; return; }
+    const grupos = new Map(MM.GROUP_ORDER.map(g => [g, []]));
+    lista.forEach(e => grupos.get(e.group || 'Otros').push(e));
+    let html = '';
+    for (const [g, es] of grupos) {
+      if (!es.length) continue;
+      const piezas = es.reduce((n, e) => n + e.uses.length, 0), cerrado = ui.cerrados.has(g) && !q;
+      html += '<li class="dv-grp' + (cerrado ? ' cerrado' : '') + '" data-g="' + esc(g) + '"><button type="button" class="dv-ghead" aria-expanded="' + !cerrado + '"><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg>' + esc(g) + '<span>' + es.length + ' · ' + piezas.toLocaleString() + '</span></button><ul>' +
+        es.map(e => '<li class="dv-item' + (ui.sel === e.name ? ' sel' : '') + '" data-slot="' + esc(e.name) + '" role="button" tabindex="0" title="' + esc(e.name) + '">' +
+          '<span class="dv-th" style="' + miniatura(e) + '"></span>' +
+          '<span class="dv-iname">' + esc(nombreCorto(e)) + '<small>' + esc(detalleCorto(e)) + '</small></span>' +
+          '<span class="dv-icount">' + e.uses.length.toLocaleString() + '</span>' +
+          '<span class="dv-dot ' + (ctx.ligado(e) ? 'lock' : estado2(e)) + '" title="' + ({ auto: 'Automático', manual: 'Manual', review: 'Revisar', none: 'Sin asignar' }[estado2(e)]) + '"></span></li>').join('') + '</ul></li>';
+    }
+    Q('#dvLista').innerHTML = html;
+  }
+
+  /* ---- detalle de un solo slot ---- */
+  function abrirDetalle(id, opts) {
+    opts = opts || {};
+    if (!entrada(id)) return;
+    ui.sel = id;
+    if (!opts.elem) ui.elem = null;
+    else ui.elem = opts.elem;
+    if (opts.tab) ui.tab = opts.tab;
+    const md = Q('#dvMD'); md.classList.add('det'); Q('#dvPanel').classList.add('det'); Q('#dvDetalle').inert = false;
+    if (Q('#dvPanel').classList.contains('min')) dvEstado(false, false);
+    const tabMat = document.querySelector('.dv-tab[data-tab="dvPMat"]'); if (!tabMat.classList.contains('on')) tabMat.click();
+    resaltar();
+    renderMaster(); renderDetalle();
+  }
+  function cerrarDetalle() {
+    ui.sel = null; ui.elem = null; Q('#dvMD').classList.remove('det'); Q('#dvPanel').classList.remove('det'); Q('#dvDetalle').inert = true; resaltar(); renderMaster();
+  }
+  function renderDetalle() {
+    const e = ui.sel && entrada(ui.sel);
+    if (!e) { if (ui.sel) cerrarDetalle(); return; }
+    const s = mapa.slots[e.name], r = e.result || {};
+    Q('#dvDThumb').setAttribute('style', miniatura(e));
+    Q('#dvDNombre').textContent = nombreCorto(e);
+    Q('#dvDMeta').textContent = e.uses.length.toLocaleString() + ' pieza' + (e.uses.length > 1 ? 's' : '') + ' · ' + detalleCorto(e) + ' · ' + (r.rule ? r.rule.label : 'sin regla') + ' · variante «' + (s.variants[s.active].name || s.active) + '»';
+    const partes = Q('#dvPartes');
+    if (ui.elem && ui.elem.slots.length > 1) {
+      partes.hidden = false;
+      partes.innerHTML = ui.elem.slots.map(id => '<button type="button" class="dv-part' + (id === e.name ? ' on' : '') + '" data-slot="' + esc(id) + '" title="' + esc(id) + '">' + esc(etiquetaParte(id, ui.elem.slots)) + '</button>').join('');
+    } else { partes.hidden = true; partes.innerHTML = ''; }
+    const tabs = [...Q('#dvDTabs').querySelectorAll('button')], i = tabs.findIndex(b => b.dataset.t === ui.tab);
+    tabs.forEach((b, k) => b.setAttribute('aria-selected', String(k === i)));
+    Q('#dvDTabs .pill').style.transform = 'translateX(' + (i * 100) + '%)';
+    const lock = ctx.ligado(e);
+    Q('#dvDBody').innerHTML = (lock ? '<p class="dv-note">Ligado a la tabla de presupuesto: no se modifica desde aquí.</p>' : '') + (TABS[ui.tab] || TABS.textura)(e, s, r, lock);
+  }
+  /* Nombre de cada material dentro de un elemento: «Marco | Vidrio» */
+  function etiquetaParte(id, todos) {
+    const e = entrada(id), r = e && e.result && e.result.rule;
+    const base = r ? ({ vidrio: 'Vidrio', espejo: 'Espejo', metal: 'Marco', madera: 'Madera', agua: 'Agua', emisivo: 'Luz' }[r.id] || r.label) : nombreCorto(e);
+    const rep = todos.filter(x => { const o = entrada(x), rr = o && o.result && o.result.rule; return (rr ? ({ vidrio: 'Vidrio', espejo: 'Espejo', metal: 'Marco', madera: 'Madera', agua: 'Agua', emisivo: 'Luz' }[rr.id] || rr.label) : nombreCorto(o)) === base; }).length > 1;
+    return rep ? base + ' · ' + nombreCorto(e) : base;
+  }
+
+  const TABS = {
+    muestra: (e, s, r, lock) => '<p class="dv-note">Las muestras por slot llegan en la Parte 4.</p>',
+    textura: (e, s, r, lock) => {
+      const v = s.variants[s.active], dis = lock ? ' disabled' : '';
+      const autoR = e.match.rule ? e.match.rule.label : 'sin regla';
+      let h = '';
+      if (e.match.conflict && !lock && r.source !== 'manual') h += '<div class="dv-warn" style="margin-bottom:12px">⚠ La familia sugiere ' + esc(e.match.conflict.label) + '<button type="button" data-accion="usar" data-rule="' + e.match.conflict.id + '">Usar</button><button type="button" data-accion="usar" data-rule="' + (e.match.rule ? e.match.rule.id : '__none') + '">Mantener</button></div>';
+      h += '<div class="dv-field"><div class="dv-lbl">Material (regla)</div><select data-f="rule"' + dis + '><option value="">Auto · ' + esc(autoR) + '</option>' +
+        mapa.rules.map(rl => '<option value="' + rl.id + '"' + (v.rule === rl.id ? ' selected' : '') + '>' + esc(rl.label) + '</option>').join('') +
+        '<option value="__none"' + (v.rule === '__none' ? ' selected' : '') + '>Mantener original</option></select>' +
+        '<p class="dv-note" style="margin:6px 0 0">' + (e.match.rule ? 'Coincide por ' + esc(e.match.why.slice(0, 2).join(', ')) : 'Ninguna regla coincide') + '</p></div>';
+      const rule = r.rule;
+      if (rule && MM.isColorOnly(rule)) return h + '<p class="dv-note">' + esc(rule.label) + ' usa un material procedural (transparencia, reflexión o emisión). Ajusta su color en Ajustes o con una muestra.</p>';
+      const cands = rule ? (web.candidates[rule.id] || []) : [];
+      const lib = mapa.library.filter(t => t.source !== 'sample');
+      const actual = r.tex && r.tex.id;
+      const auto = rule && rule.id in mapa.ruleTex ? mapa.ruleTex[rule.id] : MM.resolveTexture(rule, mapa.library);
+      h += '<div class="dv-field"><div class="dv-lbl">Textura <b>' + (r.tex ? esc(r.tex.label) : 'procedural') + '</b></div><div class="dv-texgrid">' +
+        '<button type="button" class="dv-tx' + (!v.texture ? ' on' : '') + '" data-tex=""' + dis + ' title="Automática">' + (auto && auto.thumb ? '<img src="' + esc(auto.thumb) + '" alt="">' : 'Auto') + '</button>' +
+        '<button type="button" class="dv-tx' + (v.texture === '__none' ? ' on' : '') + '" data-tex="__none"' + dis + '>Sin<br>textura</button>' +
+        lib.map(t => '<button type="button" class="dv-tx' + (v.texture === t.id ? ' on' : '') + '" data-tex="' + esc(t.id) + '" title="' + esc(t.label) + '"' + dis + '>' + ((t.thumb || (t.maps.map && t.maps.map.url)) ? '<img src="' + esc(t.thumb || t.maps.map.url) + '" alt="" loading="lazy">' : esc(t.label.slice(0, 14))) + '</button>').join('') +
+        cands.filter(a => !lib.some(t => t.id === 'ph:' + a.id)).map(a => '<button type="button" class="dv-tx" data-ph="' + esc(a.id) + '" title="' + esc(a.name || a.id) + ' (Poly Haven)"' + dis + '><img src="' + esc(a.thumbnail_url || 'https://cdn.polyhaven.com/asset_img/thumbs/' + a.id + '.png?width=128&height=128') + '" alt="" loading="lazy"></button>').join('') +
+        '</div>' + (!cands.length && !lib.length ? '<p class="dv-note" style="margin-top:8px">Pulsa «Buscar texturas en web» para ver opciones de Poly Haven.</p>' : '') + '</div>';
+      return h + (actual ? '<p class="dv-note">' + (r.meters).toFixed(2) + ' m por repetición</p>' : '');
+    },
+    ajustes: (e, s, r, lock) => {
+      const v = s.variants[s.active], dis = lock ? ' disabled' : '';
+      const col = v.tint || (e.mat ? hex(e.mat.color) : '#cccccc');
+      return '<div class="dv-field"><div class="dv-lbl">Tinte' + (v.tint ? '' : ' <b>heredado</b>') + '</div><div class="dv-color"><input type="color" data-f="tint" value="' + esc(col) + '"' + dis + '><code>' + esc(col.toUpperCase()) + '</code>' +
+        (v.tint ? '<button type="button" class="dv-btn" data-accion="sin-tinte"' + dis + '>Quitar</button>' : '') + '</div></div>';
+    },
+    variantes: (e, s, r, lock) => {
+      const ids = Object.keys(s.variants), dis = lock ? ' disabled' : '';
+      return '<p class="dv-note">Cada variante guarda material, textura, ajustes y muestra. La activa es la que se ve.</p>' +
+        ids.map(id => { const v = s.variants[id]; return '<div class="dv-vrow' + (id === s.active ? ' on' : '') + '" data-v="' + id + '">' +
+          '<button type="button" class="dv-radio" data-accion="activar" aria-label="Usar ' + esc(v.name || id) + '"' + dis + '></button>' +
+          '<input type="text" data-vf="name" value="' + esc(v.name || id) + '" aria-label="Nombre de la variante"' + dis + '>' +
+          '<input type="text" class="cost" data-vf="costRef" value="' + esc(v.costRef || '') + '" placeholder="Partida" title="Partida del presupuesto (costRef)"' + dis + '>' +
+          '<button type="button" class="dv-del" data-accion="borrar" aria-label="Eliminar variante"' + (ids.length < 2 || lock ? ' disabled' : '') + '>×</button></div>'; }).join('') +
+        '<div class="dv-row-actions"><button type="button" class="dv-btn" data-accion="duplicar"' + dis + '>Duplicar activa</button><button type="button" class="dv-btn" data-accion="nueva"' + dis + '>Nueva automática</button></div>';
+    },
+  };
+
+  /* edición: todo cambia la variante activa del slot */
+  const editar = patch => { const e = entrada(ui.sel); if (!e) return; mapa.updateVariant(e.name, mapa.slots[e.name].active, patch); actualizado(); };
+  function actualizado() { ctx.redibujar(); renderStats(); renderMaster(); renderDetalle(); renderPaleta(); }
   function ejecutar() { ctx.aplicarMapa(); render(); renderPaleta(); }
-  /* Los cambios del panel editan la variante activa del slot */
-  const editar = (e, patch) => { const s = mapa.slots[e.name]; mapa.updateVariant(e.name, s.active, patch); ejecutar(); };
-  Q('#dvStats').addEventListener('click', ev => { const s = ev.target.closest('.dv-stat'); if (!s) return; vista2 = s.dataset.v; render(); });
+
+  Q('#dvStats').addEventListener('click', ev => { const s = ev.target.closest('.dv-stat'); if (!s) return; ui.filtro = s.dataset.v; renderStats(); renderMaster(); });
   Q('#dvLista').addEventListener('click', ev => {
-    const b = ev.target.closest('button'); if (!b) return; const e = mapa.entries[+b.closest('.dv-row').dataset.i];
-    editar(e, { rule: b.dataset.accept || (e.match.rule ? e.match.rule.id : '__none') });
+    const g = ev.target.closest('.dv-ghead');
+    if (g) { const n = g.parentNode.dataset.g; if (ui.cerrados.has(n)) ui.cerrados.delete(n); else ui.cerrados.add(n); guardarCerrados(); g.parentNode.classList.toggle('cerrado'); g.setAttribute('aria-expanded', String(!ui.cerrados.has(n))); return; }
+    const it = ev.target.closest('.dv-item'); if (it) abrirDetalle(it.dataset.slot);
   });
-  Q('#dvLista').addEventListener('change', ev => {
-    const sel = ev.target.closest('select'); if (!sel) return; const e = mapa.entries[+sel.closest('.dv-row').dataset.i];
-    editar(e, { [sel.dataset.k]: sel.value || null });
+  Q('#dvLista').addEventListener('keydown', ev => { const it = ev.target.closest('.dv-item'); if (it && (ev.key === 'Enter' || ev.key === ' ')) { ev.preventDefault(); abrirDetalle(it.dataset.slot); } });
+  Q('#dvQ').addEventListener('input', renderMaster);
+  Q('#dvVolver').addEventListener('click', cerrarDetalle);
+  Q('#dvPartes').addEventListener('click', ev => { const b = ev.target.closest('.dv-part'); if (b) abrirDetalle(b.dataset.slot, { elem: ui.elem }); });
+  Q('#dvDTabs').addEventListener('click', ev => { const b = ev.target.closest('button'); if (!b) return; ui.tab = b.dataset.t; renderDetalle(); });
+  Q('#dvDBody').addEventListener('change', ev => {
+    const t = ev.target, e = entrada(ui.sel); if (!e) return;
+    if (t.dataset.f === 'rule') editar({ rule: t.value || null });
+    else if (t.dataset.f === 'tint') editar({ tint: t.value });
+    else if (t.dataset.vf) { const v = t.closest('.dv-vrow').dataset.v; mapa.updateVariant(e.name, v, { [t.dataset.vf]: t.value.trim() || null }); renderDetalle(); }
   });
-  Q('#dvQ').addEventListener('input', render);
+  Q('#dvDBody').addEventListener('input', ev => {          // tinte en vivo mientras se arrastra el selector
+    const t = ev.target; if (t.dataset.f !== 'tint') return; const e = entrada(ui.sel); if (!e) return;
+    mapa.updateVariant(e.name, mapa.slots[e.name].active, { tint: t.value }); ctx.redibujar();
+    const c = t.parentNode.querySelector('code'); if (c) c.textContent = t.value.toUpperCase();
+  });
+  Q('#dvDBody').addEventListener('click', async ev => {
+    const b = ev.target.closest('button'); if (!b || b.disabled) return; const e = entrada(ui.sel); if (!e) return; const s = mapa.slots[e.name];
+    if (b.dataset.tex !== undefined) return editar({ texture: b.dataset.tex || null });
+    if (b.dataset.ph) {
+      const rule = e.result.rule, asset = (web.candidates[rule.id] || []).find(a => a.id === b.dataset.ph); b.classList.add('cargando');
+      try { const t = await MM.polyHavenTexture(asset, web.res); if (!mapa.findTexture(t.id)) mapa.library.push(t); editar({ texture: t.id }); }
+      catch (err) { aviso('No se pudo descargar ' + asset.id); b.classList.remove('cargando'); }
+      return;
+    }
+    const acc = b.dataset.accion, row = b.closest('.dv-vrow'), vid = row && row.dataset.v;
+    if (acc === 'usar') editar({ rule: b.dataset.rule });
+    else if (acc === 'sin-tinte') editar({ tint: null });
+    else if (acc === 'activar') { mapa.setVariant(e.name, vid); actualizado(); }
+    else if (acc === 'borrar') { mapa.removeVariant(e.name, vid); actualizado(); }
+    else if (acc === 'duplicar') { const v = s.variants[s.active]; const id = mapa.addVariant(e.name, Object.assign({}, v, { name: (v.name || s.active) + ' (copia)' })); mapa.setVariant(e.name, id); actualizado(); }
+    else if (acc === 'nueva') { const id = mapa.addVariant(e.name, {}); mapa.setVariant(e.name, id); actualizado(); }
+  });
   document.querySelectorAll('.dv-tab').forEach(t => t.addEventListener('click', () => {
     document.querySelectorAll('.dv-tab').forEach(x => x.classList.toggle('on', x === t));
     document.querySelectorAll('.dv-pane').forEach(p => p.classList.toggle('on', p.id === t.dataset.tab));
   }));
+
+  /* ---- clic en el visor: raycaster → pieza → elemento → slots ---- */
+  const ray = new THREE.Raycaster(), ndc = new THREE.Vector2();
+  let abajo = null;
+  ctx.canvas.addEventListener('pointerdown', ev => { abajo = { x: ev.clientX, y: ev.clientY, t: performance.now(), b: ev.button }; });
+  ctx.canvas.addEventListener('pointerup', ev => {
+    const a = abajo; abajo = null;
+    if (!a || a.b !== 0 || Q('#dvPanel').classList.contains('min')) return;
+    if (Math.hypot(ev.clientX - a.x, ev.clientY - a.y) > 5 || performance.now() - a.t > 450) return;   // fue un arrastre
+    elegirEnVisor(ev.clientX, ev.clientY);
+  });
+  function raicesVisibles() { return ctx.modeloExt && ctx.nivel ? [ctx.nivel] : ctx.raicesBase.filter(o => o.visible); }
+  function elegirEnVisor(x, y) {
+    const rc = ctx.canvas.getBoundingClientRect();
+    ndc.set((x - rc.left) / rc.width * 2 - 1, -((y - rc.top) / rc.height) * 2 + 1);
+    ray.setFromCamera(ndc, ctx.camera);
+    const hits = ray.intersectObjects(raicesVisibles(), true);
+    const h = hits.find(h => h.object.visible && mapa.meshSlots.has(h.object) && !h.object.userData.__dvHl);
+    if (!h) return;
+    const elem = elemento(h.object), slots = mapa.meshSlots.get(h.object);
+    abrirDetalle(slots[0], { elem });
+  }
+  /* El elemento es el nodo padre de la pieza (instancia de Revit). Si el padre agrupa demasiado, la pieza sola. */
+  function elemento(mesh) {
+    const p = mesh.parent, roots = new Set(raicesVisibles());
+    let meshes = [mesh];
+    if (p && !roots.has(mesh) && !p.isScene) {
+      const m = []; p.traverse(o => { if (o.isMesh && mapa.meshSlots.has(o)) m.push(o); });
+      if (m.length <= 60) meshes = m;
+    }
+    const slots = [];
+    mapa.meshSlots.get(mesh).forEach(id => slots.includes(id) || slots.push(id));
+    meshes.forEach(o => mapa.meshSlots.get(o).forEach(id => slots.includes(id) || slots.push(id)));
+    return { mesh, meshes, slots };
+  }
+  /* Resalta en el visor las piezas del slot activo (en el elemento elegido, o todas si se eligió en la lista) */
+  const hlMat = new THREE.MeshBasicMaterial({ color: 0x5b8bd9, transparent: true, opacity: .45, depthWrite: false, polygonOffset: true, polygonOffsetFactor: -2, polygonOffsetUnits: -2 });
+  const hl = new THREE.Group(); hl.name = 'dv-resaltado'; ctx.scene.add(hl);
+  function resaltar() {
+    while (hl.children.length) hl.remove(hl.children[0]);
+    const e = ui.sel && entrada(ui.sel);
+    if (e) {
+      const set = ui.elem ? ui.elem.meshes.filter(m => (mapa.meshSlots.get(m) || []).includes(e.name)) : e.uses.map(u => u.mesh);
+      [...new Set(set)].slice(0, 400).forEach(m => {
+        if (m.isInstancedMesh) return;
+        m.updateWorldMatrix(true, false);
+        const o = new THREE.Mesh(m.geometry, hlMat); o.matrixAutoUpdate = false; o.matrix.copy(m.matrixWorld); o.userData.__dvHl = true; o.renderOrder = 5; o.raycast = () => {};
+        hl.add(o);
+      });
+    }
+    ctx.redibujar();
+  }
   function dvEstado(m, g) { const p = Q('#dvPanel'); p.classList.toggle('min', m); Q('.dv-body').inert = m; Q('#dvMin').setAttribute('aria-expanded', String(!m)); if (g) { try { localStorage.setItem('devPanel', m ? 'closed' : 'open'); } catch (e) {} } }
   Q('#dvMin').addEventListener('click', () => dvEstado(!Q('#dvPanel').classList.contains('min'), true));
   Q('#dvMinIn').addEventListener('click', () => dvEstado(true, true));
@@ -210,7 +399,7 @@ function init(ctx) {
   });
 
   mapa.analyze(ctx.raicesBase); refrescarPanel();
-  root.__dev = { mapa, MM, ponerModelo: ctx.ponerModelo, escenaPrueba, ejecutar, ponerBase: ctx.ponerBase, cargarArchivos, aviso };
+  root.__dev = { mapa, MM, ponerModelo: ctx.ponerModelo, escenaPrueba, ejecutar, ponerBase: ctx.ponerBase, cargarArchivos, aviso, abrirDetalle, elegirEnVisor, ui, ctx };
   /* Deja que se pinte primero el Modelo base; precarga FRIOX sin mostrarlo */
   if (ctx.precargarFriox) requestAnimationFrame(() => setTimeout(() => precargarFriox().catch(err => console.warn('FRIOX no disponible para precarga:', err)), 100));
 
